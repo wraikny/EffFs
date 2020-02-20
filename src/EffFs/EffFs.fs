@@ -19,13 +19,13 @@ type EffBuilder() =
     Eff(fun _ -> (^h: (static member Handle:_->_)x))
   
   member inline __.Bind(effect: ^``Effect<'a>``, f: 'a -> Eff< ^h, 'b>) =
-    Eff(fun h -> Eff.__handle h (effect, f) |> Eff.__get <| h)
+    Eff.__handle (Unchecked.defaultof< ^h >) (effect, f)
   
   member inline __.Bind(eff: Eff< ^h, 'a>, f: 'a -> Eff< ^h, 'b>) =
-    Eff(fun h -> Eff.__get eff h |> f |> Eff.__get <| h)
+    Eff.__get eff (Unchecked.defaultof< ^h >) |> f
   
   member inline __.ReturnFrom(x) = x
 
-  member __.Combine (g,f) = g >> f
+  member inline __.Combine (g,f) = g >> f
 
 let eff = EffBuilder()
