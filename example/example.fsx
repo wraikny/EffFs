@@ -6,7 +6,7 @@ type PrintInt = PrintInt of int
 let inline hoge() =
   EffFs.eff {
     let! a = RandomInt 100
-    let! _ = PrintInt 100
+    let! _ = PrintInt a
     let b = a + a
     return (a, b)
   }
@@ -24,7 +24,9 @@ module Handler =
       printfn "%d" a; k a
 
   type Handler2 = Handler2 with
-    static member inline Handle(x) = x
+    static member inline Handle(x) =
+      let a, b = x
+      (a * 1000) + b
 
     static member inline Handle(RandomInt a, k) =
       printfn "random: %d" a
