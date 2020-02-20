@@ -1,4 +1,4 @@
-
+[![](https://github.com/wraikny/EffFs/workflows/CI/badge.svg)](https://github.com/wraikny/EffFs/actions?workflow=CI)
 
 # EffFs
 Something like Algebraic Effects, but I don't know.
