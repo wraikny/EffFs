@@ -12,10 +12,11 @@ let inline __getEffValue (Eff x) = x
 let inline __handleEff (_: ^Handler) (x: ^``Effect<'a>``, k: 'a -> 'b) : 'b =
   ((^``Effect<'a>`` or ^Handler): (static member Handle:_*_->_)x,k)
 
-let inline perform (handler: ^Handler) eff: 'a = __getEffValue eff handler
+let inline handle (handler: ^Handler) eff: 'a = __getEffValue eff handler
 
 type EffBuilder() =
-  member inline __.Return(x): Eff< ^Handler, 'a> = Eff(fun _ -> x)
+  member inline __.Return(x): Eff< ^Handler, 'a> =
+    Eff(fun _ -> (^Handler: (static member Handle:_->_)x))
   
   member inline __.Bind(effect: ^``Effect<'a>``, f: 'a -> Eff< ^Handler, 'b>) =
     Eff(fun h -> __handleEff h (effect, f) |> __getEffValue <| h)

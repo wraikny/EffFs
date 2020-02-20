@@ -1,3 +1,5 @@
+
+
 # EffFs
 Something like Algebraic Effects, but I don't know.
 
@@ -20,6 +22,8 @@ module Handler =
   let rand = System.Random()
 
   type Handler = Handler with
+    static member inline Handle(x) = x
+
     static member inline Handle(RandomInt a, k) =
       rand.Next(a) |> k
     
@@ -27,7 +31,7 @@ module Handler =
       printfn "%d" a; k a
 
 hoge()
-|> EffFs.perform Handler.Handler
+|> EffFs.handle Handler.Handler
 |> printfn "%A"
 ```
 

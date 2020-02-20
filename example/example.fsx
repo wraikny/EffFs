@@ -15,6 +15,8 @@ module Handler =
   let rand = System.Random()
 
   type Handler1 = Handler1 with
+    static member inline Handle(x) = x
+
     static member inline Handle(RandomInt a, k) =
       rand.Next(a) |> k
     
@@ -22,6 +24,8 @@ module Handler =
       printfn "%d" a; k a
 
   type Handler2 = Handler2 with
+    static member inline Handle(x) = x
+
     static member inline Handle(RandomInt a, k) =
       printfn "random: %d" a
       rand.Next(a) |> k
@@ -31,13 +35,13 @@ module Handler =
       printfn "%d" a; k a
 
 hoge()
-|> EffFs.perform Handler.Handler1
+|> EffFs.handle Handler.Handler1
 |> printfn "%A"
 
 printfn "---"
 
 hoge()
-|> EffFs.perform Handler.Handler2
+|> EffFs.handle Handler.Handler2
 |> printfn "%A"
 
 // example output
