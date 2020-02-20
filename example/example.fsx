@@ -14,9 +14,18 @@ module Handler =
     static member inline Handle(PrintInt a, k) =
       printfn "%d" a; k a
 
+  type Handler2 = Handler2 with
+    static member inline Handle(RandomInt a, k) =
+      printfn "random: %d" a
+      rand.Next(a) |> k
+    
+    static member inline Handle(PrintInt a, k) =
+      printfn "print: %d" a
+      printfn "%d" a; k a
+
 open EffFs
 
-let inline hoge< ^h > =
+let inline hoge() =
   eff {
     let! a = RandomInt 100
     let! _ = PrintInt 100
@@ -24,11 +33,18 @@ let inline hoge< ^h > =
     return (a, b)
   }
 
-hoge |> perform Handler |> printfn "%A"
+hoge() |> perform Handler |> printfn "%A"
+printfn "---"
+hoge() |> perform Handler2 |> printfn "%A"
 
 // example output
 (*
 100
-(93, 186)
+(66, 132)
+---
+random: 100
+print: 100
+100
+(77, 154)
 *)
 
