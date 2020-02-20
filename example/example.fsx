@@ -3,6 +3,14 @@
 type RandomInt = RandomInt of int
 type PrintInt = PrintInt of int
 
+let inline hoge() =
+  EffFs.eff {
+    let! a = RandomInt 100
+    let! _ = PrintInt 100
+    let b = a + a
+    return (a, b)
+  }
+
 [<AutoOpen>]
 module Handler =
   let rand = System.Random()
@@ -23,19 +31,15 @@ module Handler =
       printfn "print: %d" a
       printfn "%d" a; k a
 
-open EffFs
+hoge()
+|> EffFs.perform Handler
+|> printfn "%A"
 
-let inline hoge() =
-  eff {
-    let! a = RandomInt 100
-    let! _ = PrintInt 100
-    let b = a + a
-    return (a, b)
-  }
-
-hoge() |> perform Handler |> printfn "%A"
 printfn "---"
-hoge() |> perform Handler2 |> printfn "%A"
+
+hoge()
+|> EffFs.perform Handler2
+|> printfn "%A"
 
 // example output
 (*
