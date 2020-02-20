@@ -4,7 +4,7 @@ open EffFs
 type RandomInt = RandomInt of int
 type PrintInt = PrintInt of int
 
-let inline hoge() =
+let inline foo() =
   eff {
     let! a = RandomInt 100
     let! _ = PrintInt a
@@ -37,13 +37,15 @@ module Handlers =
       printfn "print: %d" a
       printfn "%d" a; k a
 
-hoge()
+foo()
 |> Eff.handle Handlers.Handler1
 |> printfn "%A"
 
 printfn "---"
 
-hoge()
+let bar : Eff<_, Handlers.Handler2> = foo()
+
+bar
 |> Eff.handle Handlers.Handler2
 |> printfn "%A"
 
@@ -57,4 +59,3 @@ print: 100
 100
 (77, 154)
 *)
-

@@ -11,7 +11,7 @@ open EffFs
 type RandomInt = RandomInt of int
 type PrintInt = PrintInt of int
 
-let inline hoge() =
+let inline foo() =
   eff {
     let! a = RandomInt 100
     let! _ = PrintInt a
@@ -30,7 +30,7 @@ type Handler = Handler with
   static member inline Handle(PrintInt a, k) =
     printfn "%d" a; k a
 
-hoge()
+foo()
 |> Eff.handle Handler
 |> printfn "%A"
 ```
