@@ -1,5 +1,11 @@
 # EffFs
 
+## .NET Core
+```sh
+$ dotnet --version
+3.1.101
+```
+
 ## Build
 ```sh
 $ dotnet build src/EffFs # Debug
