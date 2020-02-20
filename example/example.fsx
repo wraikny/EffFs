@@ -11,11 +11,10 @@ let inline hoge() =
     return (a, b)
   }
 
-[<AutoOpen>]
 module Handler =
   let rand = System.Random()
 
-  type Handler = Handler with
+  type Handler1 = Handler1 with
     static member inline Handle(RandomInt a, k) =
       rand.Next(a) |> k
     
@@ -32,13 +31,13 @@ module Handler =
       printfn "%d" a; k a
 
 hoge()
-|> EffFs.perform Handler
+|> EffFs.perform Handler.Handler1
 |> printfn "%A"
 
 printfn "---"
 
 hoge()
-|> EffFs.perform Handler2
+|> EffFs.perform Handler.Handler2
 |> printfn "%A"
 
 // example output
