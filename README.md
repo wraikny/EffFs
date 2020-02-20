@@ -9,12 +9,12 @@ Something like Algebraic Effects, but I don't know.
 open EffFs
 
 type RandomInt = RandomInt of int
-type PrintInt = PrintInt of int
+type Println = Println of obj
 
 let inline foo() =
   eff {
     let! a = RandomInt 100
-    do! PrintInt a
+    do! Println a
     let b = a + a
     return (a, b)
   }
@@ -27,8 +27,8 @@ type Handler = Handler with
   static member inline Handle(RandomInt a, k) =
     rand.Next(a) |> k
   
-  static member inline Handle(PrintInt a, k) =
-    printfn "%d" a; k()
+  static member inline Handle(Println a, k) =
+    printfn "%A" a; k()
 
 foo()
 |> Eff.handle Handler

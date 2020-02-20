@@ -11,5 +11,6 @@ type EffBuilder() =
   member inline __.Bind(eff: ^Ea, f: 'a -> Eff<'b, ^h>): Eff<'b, ^h> =
     ((^Ea or ^h): (static member Handle:_*_->_)eff, f)
   member inline __.ReturnFrom(x) = x
+  member inline __.Combine(g,f) = g >> f
 
 let eff = EffBuilder()
