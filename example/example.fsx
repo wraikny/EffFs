@@ -7,7 +7,7 @@ type PrintInt = PrintInt of int
 let inline foo() =
   eff {
     let! a = RandomInt 100
-    let! _ = PrintInt a
+    do! PrintInt a
     let b = a + a
     return (a, b)
   }
@@ -22,12 +22,14 @@ module Handlers =
       rand.Next(a) |> k
     
     static member inline Handle(PrintInt a, k) =
-      printfn "%d" a; k a
+      printfn "%d" a; k()
 
   type Handler2 = Handler2 with
     static member inline Handle(x) =
       let a, b = x
       (a * 1000) + b
+
+    static member inline Handle(_:Eff<unit,_>, k) = k()
 
     static member inline Handle(RandomInt a, k) =
       printfn "random: %d" a
@@ -35,7 +37,7 @@ module Handlers =
     
     static member inline Handle(PrintInt a, k) =
       printfn "print: %d" a
-      printfn "%d" a; k a
+      printfn "%d" a; k()
 
 foo()
 |> Eff.handle Handlers.Handler1

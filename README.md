@@ -14,7 +14,7 @@ type PrintInt = PrintInt of int
 let inline foo() =
   eff {
     let! a = RandomInt 100
-    let! _ = PrintInt a
+    do! PrintInt a
     let b = a + a
     return (a, b)
   }
@@ -28,7 +28,7 @@ type Handler = Handler with
     rand.Next(a) |> k
   
   static member inline Handle(PrintInt a, k) =
-    printfn "%d" a; k a
+    printfn "%d" a; k()
 
 foo()
 |> Eff.handle Handler
