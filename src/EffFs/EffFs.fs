@@ -3,26 +3,26 @@ open System.ComponentModel
 
 type Eff< ^Handler, 'a > = Eff of (^Handler -> 'a)
 
-/// internal function
-[<EditorBrowsable(EditorBrowsableState.Never)>]
-let inline __getEffValue (Eff x) = x
+[<RequireQualifiedAccess>]
+module Eff =
+  [<EditorBrowsable(EditorBrowsableState.Never)>]
+  let inline __get (Eff x) = x
 
-/// internal function
-[<EditorBrowsable(EditorBrowsableState.Never)>]
-let inline __handleEff (_: ^Handler) (x: ^``Effect<'a>``, k: 'a -> 'b) : 'b =
-  ((^``Effect<'a>`` or ^Handler): (static member Handle:_*_->_)x,k)
+  [<EditorBrowsable(EditorBrowsableState.Never)>]
+  let inline __handle (_: ^h) (x: ^``Effect<'a>``, k: 'a -> 'b) : 'b =
+    ((^``Effect<'a>`` or ^h): (static member Handle:_*_->_)x,k)
 
-let inline handle (handler: ^Handler) eff: 'a = __getEffValue eff handler
+  let inline handle (handler: ^Handler) eff: 'a = __get eff handler
 
 type EffBuilder() =
-  member inline __.Return(x): Eff< ^Handler, 'a> =
-    Eff(fun _ -> (^Handler: (static member Handle:_->_)x))
+  member inline __.Return(x): Eff< ^h, 'a> =
+    Eff(fun _ -> (^h: (static member Handle:_->_)x))
   
-  member inline __.Bind(effect: ^``Effect<'a>``, f: 'a -> Eff< ^Handler, 'b>) =
-    Eff(fun h -> __handleEff h (effect, f) |> __getEffValue <| h)
+  member inline __.Bind(effect: ^``Effect<'a>``, f: 'a -> Eff< ^h, 'b>) =
+    Eff(fun h -> Eff.__handle h (effect, f) |> Eff.__get <| h)
   
-  member inline __.Bind(eff: Eff< ^Handler, 'a>, f: 'a -> Eff< ^Handler, 'b>) =
-    Eff(fun h -> __getEffValue eff h |> f |> __getEffValue <| h)
+  member inline __.Bind(eff: Eff< ^h, 'a>, f: 'a -> Eff< ^h, 'b>) =
+    Eff(fun h -> Eff.__get eff h |> f |> Eff.__get <| h)
   
   member inline __.ReturnFrom(x) = x
 

@@ -6,12 +6,13 @@ Something like Algebraic Effects, but I don't know.
 ## Example
 ```fsharp
 #load "../src/EffFs/EffFs.fs"
+open EffFs
 
 type RandomInt = RandomInt of int
 type PrintInt = PrintInt of int
 
 let inline hoge() =
-  EffFs.eff {
+  eff {
     let! a = RandomInt 100
     let! _ = PrintInt a
     let b = a + a
@@ -30,7 +31,7 @@ type Handler = Handler with
     printfn "%d" a; k a
 
 hoge()
-|> EffFs.handle Handler
+|> Eff.handle Handler
 |> printfn "%A"
 ```
 

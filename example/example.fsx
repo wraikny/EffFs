@@ -1,17 +1,18 @@
 #load "../src/EffFs/EffFs.fs"
+open EffFs
 
 type RandomInt = RandomInt of int
 type PrintInt = PrintInt of int
 
 let inline hoge() =
-  EffFs.eff {
+  eff {
     let! a = RandomInt 100
     let! _ = PrintInt a
     let b = a + a
     return (a, b)
   }
 
-module Handler =
+module Handlers =
   let rand = System.Random()
 
   type Handler1 = Handler1 with
@@ -37,13 +38,13 @@ module Handler =
       printfn "%d" a; k a
 
 hoge()
-|> EffFs.handle Handler.Handler1
+|> Eff.handle Handlers.Handler1
 |> printfn "%A"
 
 printfn "---"
 
 hoge()
-|> EffFs.handle Handler.Handler2
+|> Eff.handle Handlers.Handler2
 |> printfn "%A"
 
 // example output
