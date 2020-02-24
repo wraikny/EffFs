@@ -1,9 +1,13 @@
 [![](https://github.com/wraikny/EffFs/workflows/CI/badge.svg)](https://github.com/wraikny/EffFs/actions?workflow=CI)
 
 # EffFs
-Something like Algebraic Effects, but I don't know.
+Something like Algebraic Effects, but I don't know.  
+Multiple handlers cannot be composed.  
+This is a F# library.
 
 ## Example
+And [more examples](example/example.fsx)
+
 ```fsharp
 #load "../src/EffFs/EffFs.fs"
 open EffFs
@@ -26,19 +30,20 @@ type Handler = Handler with
 
   static member inline Handle(RandomInt a, k) =
     rand.Next(a) |> k
-  
+
   static member inline Handle(Println a, k) =
     printfn "%A" a; k()
 
 foo()
 |> Eff.handle Handler
 |> printfn "%A"
-```
 
-output example:
-```
+
+// example output
+(*
 66
 (66, 132)
+*)
 ```
 
 ## .NET Core
