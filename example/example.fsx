@@ -35,7 +35,7 @@ module Handlers =
     static member inline Handle(Println a, k) =
       printfn "%A" a; k()
 
-  type Handler2 = {name : string } with
+  type Handler2 = { name : string } with
 
     static member inline Handle(x) = x
 
