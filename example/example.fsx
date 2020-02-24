@@ -91,3 +91,41 @@ bar
 95
 (95, 190)
 *)
+
+// printfn "---"
+
+// module Debug =
+//   type E1 = E1
+//   type E2 = E2
+//   type E3 = E3
+
+//   let inline hoge() =
+//     eff {
+//       let! x = E1
+//       let y = if true then 0 else 1
+//       for i in 0..3 do
+//         printfn "aaa"
+//         do! E2
+//         // do! E2
+//         // if i = 3 then return -1
+//         // return -1
+//       // use! a = E3
+//       // if true then return -1
+//       let b = 1
+//       return x
+//     }
+
+//   type H = H with
+//     static member inline Handle(x) = x
+//     static member inline Handle(E1, k) =
+//       k 100
+//     static member inline Handle(E2, k) =
+//       printfn "hello"; k()
+//     static member inline Handle(E3, k) =
+//       { new System.IDisposable with
+//         member __.Dispose() = printfn "disposed"
+//       } |> k
+
+//   let inline main() = hoge() |> Eff.handle H |> printfn "%A"
+
+// Debug.main()

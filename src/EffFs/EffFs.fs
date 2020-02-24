@@ -19,9 +19,16 @@ module Eff =
 
 [<AutoOpen>]
 module Builder =
+  open System
   type EffBuilder() =
     member inline __.Return(x: 'a): Eff<'b, ^h> = Eff.pure' x
     member inline __.ReturnFrom(e: ^e) = Eff.bind id e
     member inline __.Bind(e: ^e, f): Eff<'b, ^h> = Eff.bind f e
+
+    // member inline __.Zero() = Eff(ignore)
+    // member inline __.Delay(f: unit -> Eff<'a, ^h>) = f
+    // member inline __.Run(f): Eff<'a, ^h> = f()
+    // member inline __.Combine(a, b) =
+    //   Eff(fun h -> a |> Eff.handle h |> b |> Eff.handle h)
 
   let eff = EffBuilder()
