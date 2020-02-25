@@ -8,55 +8,74 @@ module Internal =
   type Default2 = class inherit Default3 end
   type Default1 = class inherit Default2 end
 
-  // open System.Runtime.InteropServices
+  open System.Runtime.InteropServices
 
   type Handle =
     inherit Default1
 
     static member inline Apply h (Eff e) = e h
+
+    static member inline Return(x: ^a): Eff< ^b, ^handler > =
+      Eff(fun _ -> (^handler: (static member Handle:_->_)x))
+    
     static member inline Bind(e: ^``E<^a>``, k: 'a -> Eff< ^b, ^h >): Eff< ^b, ^h > =
       ((^h or ^``E<^a>``): (static member Handle:_*_->_)e,k)
 
-    static member inline Handle((Eff e: Eff< ^a, ^h >, k: ^a -> Eff< ^b, ^h >), _mthd: Handle) =
+    static member inline Handle((Eff e: Eff< ^a, ^h >, k: ^a -> Eff< ^b, ^h >), _mthd: Handle): Eff< ^b, ^h > =
       Eff(fun h -> e h |> k |> Handle.Apply h)
 
-    static member inline Handle((e: ^``E<^a>`` when (^h or ^``E<^a>``): (static member Handle:^``E<^a>``*(^a -> Eff< ^b, ^h >)->Eff< ^b, ^h >), k: ^a -> Eff< ^b, ^h>)
-      , _mthd: Default1) = Handle.Bind(e, k)
+    static member inline Handle((e: ^``E<^a>``, k: ^a -> Eff< ^b, ^h>), [<Optional>]_mthd: Default1): _
+      when (^h or ^``E<^a>``)
+        : (static member Handle:^``E<^a>``*(^a -> Eff< ^b, ^h >)->Eff< ^b, ^h >
+          ) = Handle.Bind(e, k)
 
-    static member inline Handle((e: ^``E<^a>`` when (^g or ^``E<^a>``): (static member Handle:^``E<^a>``*(^a -> Eff<Eff< ^b, ^g >, ^h>)->Eff<Eff< ^b, ^g >, ^h>), k: ^a -> Eff<Eff< ^b, ^g >, ^h>)
-      , _mthd: Default2) = Eff(fun g -> Handle.Bind(e, k) |> Handle.Apply g)
+    static member inline Handle((e: ^``E<^a>``, k: ^a -> Eff< ^b, ^h >), [<Optional>]_mthd: Default2): _
+      when (^g or ^``E<^a>``)
+        : (static member Handle:^``E<^a>``*(^a -> Eff<Eff< ^b, ^g >, ^h>)->Eff<Eff< ^b, ^g >, ^h>
+          ) = Eff(fun (_: ^h) -> Handle.Bind(e, k))
 
     static member inline Invoke(k: ^a -> Eff< ^b, ^h >) (e: ^``E<^a>``): Eff< ^b, ^h > =
       let inline call(x: ^M, e: ^E) = ((^M or ^E): (static member Handle:(_*_)*_->_)(e,k),x)
       call(Unchecked.defaultof<Handle>, e)
 
+open Internal
 
 module Eff =
+  let inline pure' x = Handle.Return x
+
+  let inline bind (k: ^a -> Eff< ^b, ^handler >) (effect: ^``Effect<^a>``): _
+    when (Handle or  ^``Effect<^a>``)
+      : (static member Handle : ( ^``Effect<^a>`` * ( ^a -> Eff< ^b, ^handler>)) * Handle -> Eff< ^b, ^handler>
+        ) = Handle.Invoke k effect
+
+  let inline map (f: ^a -> ^b) (e: ^``Effect<^a>``): Eff< ^b, ^handler >
+    when (Handle or  ^``Effect<^a>``)
+      : (static member Handle : ( ^``Effect<^a>`` * ( ^a -> Eff< ^b, ^handler>)) * Handle -> Eff< ^b, ^handler>
+        ) = bind (f >> pure') e
+
+  // let inline handle (handler: ^handler) (e: ^``Effect<^a>``): ^a
+  //   when (Handle or  ^``Effect<^a>``) : (static member Handle : ( ^``Effect<^a>`` * ( ^a -> Eff< ^a, ^handler>)) * Handle -> Eff< ^a, ^handler>)
+  //   = e |> bind pure' |> Handle.Apply handler
+
   let inline handle (handler: ^handler) (Eff e) = e handler
 
-  let inline capture(f: ^h -> Eff< ^a, ^h >) = Eff(fun h -> f h |> handle h)
-
-  let inline nest (Eff e: Eff<'a, ^handler>) k: Eff<'b, ^handler> = capture(e >> k)
-
-  let inline pure' (x: ^a): Eff< ^b, ^h > = Eff(fun _ -> (^h: (static member Handle:_->_)x))
-
-  (*
-    EffFs.fs(44,5): error FS0193: 型パラメーターに制約
-    'when (EffFs.Internal.Handle or  ^Effect<^a>) : (static member Handle : ( ^Effect<^a> * ( ^a -> EffFs.Eff< ^b, ^handler>)) * EffFs.Internal.Handle -> EffFs.Eff< ^b, ^handler>)'
-    がありません
-  *)
-  let inline bind (k: ^a -> Eff< ^b, ^handler >) (effect: ^``Effect<^a>``) =
-    Internal.Handle.Invoke k effect
-  // let inline bind (k: ^a -> Eff< ^b, ^handler >) (effect: ^``Effect<^a>``) = Internal.Handle.Bind(effect, k)
-
-  let inline map (f: ^a -> ^b) (e: ^``Effect<^a>``): Eff< ^b, ^h> = bind (f >> pure') e
+  let inline capture(f: ^handler -> Eff< ^a, ^handler >) =
+    Eff(fun h -> f h |> Handle.Apply h)
 
 
 [<AutoOpen>]
 module Builder =
   type EffBuilder() =
     member inline __.Return(x: ^a): Eff< ^b, ^h > = Eff.pure' x
-    member inline __.ReturnFrom(e: ^e) = Eff.bind id e
-    member inline __.Bind(e: ^``E<^a>``, f): Eff< ^b, ^h > = Eff.bind f e
+
+    member inline __.ReturnFrom(e: ^``Effect<^a>``): Eff< ^b, ^handler >
+      when (Handle or  ^``Effect<^a>``)
+        : (static member Handle : ( ^``Effect<^a>`` * ( ^a -> Eff< ^b, ^handler>)) * Handle -> Eff< ^b, ^handler>
+        ) = Eff.bind Eff.pure' e
+
+    member inline __.Bind(e: ^``Effect<^a>``, f): Eff< ^b, ^handler >
+      when (Handle or  ^``Effect<^a>``)
+        : (static member Handle : ( ^``Effect<^a>`` * ( ^a -> Eff< ^b, ^handler>)) * Handle -> Eff< ^b, ^handler>
+        ) = Eff.bind f e
 
   let eff = EffBuilder()

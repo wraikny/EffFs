@@ -26,8 +26,6 @@ module Handlers =
   type Handler1 = Handler1 with
     static member inline Handle(x) = x
 
-    // allow nested effect
-    static member inline Handle(e, k) = Eff.nest e k
 
     static member inline Handle(RandomInt a, k) =
       rand.Next(a) |> k
@@ -53,25 +51,26 @@ module Handlers =
         printfn "%A" a; k()
       )
 
-    static member inline Handle(e, k) =
-      // Hack in nested effect
-      Eff.capture(fun h ->
-        printfn "[%s]: Nest(%A)" h.name e
-        e |> Eff.handle { name = h.name + "-Nested"} |> k
-      )
+(*
+error FS0071: Type constraint mismatch when applying the default type 'obj' for a type inference variable.
+internal error: Exception of type 'FSharp.Compiler.ConstraintSolver+LocallyAbortOperationThatFailsToResolveOverload' was thrown.
+Consider adding further type constraintsF# Compiler(71)
 
-
+error FS0071: 既定の型 'obj' を型推論の変数に適用するときに、型の制約が一致しませんでした。
+内部エラー: Exception of type 'FSharp.Compiler.ConstraintSolver+LocallyAbortOperationThatFailsToResolveOverload' was thrown.
+型の制約を増やしてください
+*)
 foo()
 |> Eff.handle Handlers.Handler1
 |> printfn "%A"
 
 printfn "---"
 
-let bar : Eff<_, Handlers.Handler2> = foo()
+// let bar : Eff<_, Handlers.Handler2> = foo()
 
-bar
-|> Eff.handle { Handlers.Handler2.name = "Handler2" }
-|> printfn "%A"
+// bar
+// |> Eff.handle { Handlers.Handler2.name = "Handler2" }
+// |> printfn "%A"
 
 // example output
 (*
