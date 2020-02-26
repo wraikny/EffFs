@@ -31,4 +31,4 @@ jobs:
         CI: true
 
     - name: Test
-      run: dotnet fsi --exec example/example.fsx
+      run: ./test.sh
