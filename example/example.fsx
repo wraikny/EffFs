@@ -27,7 +27,7 @@ module Handlers =
     static member inline Handle(x) = x
 
     // allow nested effect
-    static member inline Handle(e, k) = Eff.nest e k
+    static member inline Handle(e, k) = Eff.bind k e
 
     static member inline Handle(RandomInt a, k) =
       rand.Next(a) |> k
@@ -36,7 +36,6 @@ module Handlers =
       printfn "%A" a; k()
 
   type Handler2 = { name : string } with
-
     static member inline Handle(x) = x
 
     static member inline Handle(RandomInt a, k) =
@@ -53,11 +52,11 @@ module Handlers =
         printfn "%A" a; k()
       )
 
-    static member inline Handle(e, k) =
+    static member inline Handle(Eff e, k) =
       // Hack in nested effect
       Eff.capture(fun h ->
         printfn "[%s]: Nest(%A)" h.name e
-        e |> Eff.handle { name = h.name + "-Nested"} |> k
+        e { name = h.name + "-Nested"} |> k
       )
 
 
