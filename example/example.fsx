@@ -13,9 +13,9 @@ let inline hoge() = eff {
 let inline foo(): Eff<'a, ^h> =
   eff {
     let! a = RandomInt 100
-    let! x = hoge()
-    do! Println x
-    do! Println a
+    // let! x = hoge()
+    // do! Println x
+    // do! Println a
     let b = a + a
     return (a, b)
   }
@@ -65,6 +65,10 @@ foo()
 |> printfn "%A"
 
 printfn "---"
+
+eff {
+  return! RandomInt 100
+} |> Eff.handle Handlers.Handler1
 
 // let bar : Eff<_, Handlers.Handler2> = foo()
 
