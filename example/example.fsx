@@ -7,13 +7,13 @@ type RandomInt = RandomInt of int with
 type Println = Println of obj with
   static member Effect = Eff.output<unit>
 
-let inline hoge(): Eff<float, _> = eff {
+let inline hoge(): Eff<'a, ^h> = eff {
   let! a = RandomInt 10000
   do! Println "Hello!"
   return (float a / 10000.0)
 }
 
-let inline foo(): Eff<'a, ^h> =
+let inline foo() =
   eff {
     let! a = RandomInt 100
     let! x = hoge()
