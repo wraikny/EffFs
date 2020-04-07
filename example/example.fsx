@@ -1,10 +1,13 @@
 #load "../src/EffFs/EffFs.fs"
 open EffFs
 
-type RandomInt = RandomInt of int
-type Println = Println of obj
+type RandomInt = RandomInt of int with
+  static member Effect = Eff.output<int>
 
-let inline hoge() = eff {
+type Println = Println of obj with
+  static member Effect = Eff.output<unit>
+
+let inline hoge(): Eff<float, _> = eff {
   let! a = RandomInt 10000
   do! Println "Hello!"
   return (float a / 10000.0)
@@ -26,9 +29,6 @@ module Handlers =
   type Handler1 = Handler1 with
     static member inline Handle(x) = x
 
-    // allow nested effect
-    static member inline Handle(e, k) = Eff.bind k e
-
     static member inline Handle(RandomInt a, k) =
       rand.Next(a) |> k
 
@@ -40,24 +40,15 @@ module Handlers =
 
     static member inline Handle(RandomInt a, k) =
       // capture the handler
-      Eff.capture(fun h ->
+      Eff.capture <| fun h ->
         printfn "[%s]: RandomInt(%d)" h.name a
         rand.Next(a) |> k
-      )
 
     static member inline Handle(Println a, k) =
       // capture the handler
-      Eff.capture(fun h ->
+      Eff.capture <| fun h ->
         printfn "[%s]: Println(%A)" h.name a
         printfn "%A" a; k()
-      )
-
-    static member inline Handle(Eff e, k) =
-      // Hack in nested effect
-      Eff.capture(fun h ->
-        printfn "[%s]: Nest(%A)" h.name e
-        e { name = h.name + "-Nested"} |> k
-      )
 
 
 foo()
@@ -72,21 +63,8 @@ bar
 |> Eff.handle { Handlers.Handler2.name = "Handler2" }
 |> printfn "%A"
 
-// example output
-(*
-"Hello!"
-0.7097
-88
-(88, 176)
----
-[Handler2]: RandomInt(100)
-[Handler2]: Nest(Eff <fun:bar@69-2>)
-[Handler2-Nested]: RandomInt(10000)
-[Handler2-Nested]: Println("Hello!")
-"Hello!"
-[Handler2]: Println(0.0669)
-0.0669
-[Handler2]: Println(95)
-95
-(95, 190)
-*)
+printfn "---"
+
+RandomInt 100
+|> Eff.handle Handlers.Handler1
+|> printfn "Random: %d"

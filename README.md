@@ -12,8 +12,11 @@ And [more examples](example/example.fsx)
 #load "../src/EffFs/EffFs.fs"
 open EffFs
 
-type RandomInt = RandomInt of int
-type Println = Println of obj
+type RandomInt = RandomInt of int with
+  static member Effect = Eff.output<int>
+
+type Println = Println of obj with
+  static member Effect = Eff.output<unit>
 
 let inline foo() =
   eff {

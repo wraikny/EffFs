@@ -1,35 +1,48 @@
 ﻿namespace EffFs
 
-type Eff<'a, ^h> = Eff of (^h -> 'a)
+[<RequireQualifiedAccess>]
+type EffectOutput<'a> = EffectOutput of 'a
 
+[<Struct>]
+type Eff<'a, 'h> = Eff of ('h -> 'a)
+
+[<AutoOpen>]
+module private Internal =
+  let inline apply h (Eff e) = e h
+  let inline output<'a> = EffectOutput.EffectOutput(Unchecked.defaultof<'a>)
+  let inline capture (f: ^handler -> Eff<'a, ^handler>) = Eff(fun h -> f h |> apply h)
+
+type Eff<'a, 'h>  with
+  static member Effect = output<'a>
+  static member inline Handle(Eff e: Eff<'b, ^g>, f): Eff<'c, ^g> = capture (e >> f)
+
+[<RequireQualifiedAccess>]
 module Eff =
-  /// <summary>Handle effect with given handler</summary>
-  let inline handle (handler: ^handler) (eff: Eff< ^a, ^handler >) = eff |> function Eff e -> e handler
+  /// <summary>Mark Effect's output type</summary>
+  let inline output<'a> = output<'a>
 
   /// <summary>Access to handler instance</summary>
-  let inline capture (f: ^handler -> Eff<'a, ^handler>) = Eff(fun h -> f h |> handle h)
+  let inline capture (f: _ -> Eff<'a, ^handler>) = capture f
 
-  let inline pure' (x: 'a): Eff<'a, ^handler> = Eff (fun _ -> x)
+  let inline pure'(x: 'a): Eff<'b, ^h> = Eff(fun _ -> (^h: (static member Handle:'a->'b)x))
 
-  let inline bind (f: 'a -> Eff<'b, ^handler>) (Eff e): Eff<'b, ^handler> = capture (e >> f)
+  let inline bind(f: 'a -> _) (e: ^``Effect<'a>``): Eff<'b, ^h> when ^``Effect<'a>``: (static member Effect: EffectOutput<'a>) =
+    ((^h or ^``Effect<'a>``): (static member Handle:_*_->_)e,f)
 
-  let inline join (e: Eff<Eff<'a, ^handler>, ^handler>): Eff<'a, ^handler> = bind id e
+  let inline join (e: ^``Effect<^Effect<'a>>``): Eff<'a, ^handler> = bind id e
 
-  let inline map (f: 'a -> 'b) (e: Eff<'a, ^handler>) = bind (f >> pure') e
+  let inline map f e = bind (f >> pure') e
 
-  /// <summary>Bind given monad with given bind function</summary>
-  let inline bindWith bind (x: '``Monad<'a>``) (k: 'a -> Eff<'``Monad<'b>``, ^h>) = Eff(fun h -> bind (k >> handle h) x)
+  /// <summary>Handle effect with given handler</summary>
+  let inline handle (handler: ^handler) (eff: ^``Effect<'a>``) = bind pure' eff |> apply handler
 
 [<AutoOpen>]
 module Builder =
   type EffBuilder() =
-    member inline __.Return(x: 'a): Eff<'b, ^h> = Eff(fun _ -> (^h: (static member Handle:_->_)x))
-    member inline __.Bind(e: ^e, f): Eff<'b, ^h> = ((^h or ^e): (static member Handle:_*_->_)e,f)
-    member inline this.ReturnFrom(e: ^e) =  this.Bind(e, this.Return)
+    member inline __.Return(x) = Eff.pure' x
+
+    member inline __.Bind(e, f) = Eff.bind f e
+    
+    member inline __.ReturnFrom(e) = Eff.bind Eff.pure' e
 
   let eff = EffBuilder()
-
-// For FSharpPlus
-type Eff<'a, ^h> with
-  static member inline Return(x) = Eff.pure' x
-  static member inline (>>=) (x, f) = Eff.bind f x
