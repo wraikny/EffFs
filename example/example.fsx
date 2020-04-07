@@ -23,48 +23,50 @@ let inline foo(): Eff<'a, ^h> =
     return (a, b)
   }
 
-module Handlers =
-  let rand = System.Random()
+let rand = System.Random()
 
-  type Handler1 = Handler1 with
-    static member inline Handle(x) = x
+type Handler1 = Handler1 with
+  static member inline Handle(x) = x
 
-    static member inline Handle(RandomInt a, k) =
+  static member inline Handle(RandomInt a, k) =
+    rand.Next(a) |> k
+
+  static member inline Handle(Println a, k) =
+    printfn "%A" a; k()
+
+type Handler2 = { name : string } with
+  static member inline Handle(x) = x
+
+  static member inline Handle(RandomInt a, k) =
+    // capture the handler
+    Eff.capture <| fun h ->
+      printfn "[%s]: RandomInt(%d)" h.name a
       rand.Next(a) |> k
 
-    static member inline Handle(Println a, k) =
+  static member inline Handle(Println a, k) =
+    // capture the handler
+    Eff.capture <| fun h ->
+      printfn "[%s]: Println(%A)" h.name a
       printfn "%A" a; k()
 
-  type Handler2 = { name : string } with
-    static member inline Handle(x) = x
 
-    static member inline Handle(RandomInt a, k) =
-      // capture the handler
-      Eff.capture <| fun h ->
-        printfn "[%s]: RandomInt(%d)" h.name a
-        rand.Next(a) |> k
+let main () =
+  foo()
+  |> Eff.handle Handler1
+  |> printfn "%A"
 
-    static member inline Handle(Println a, k) =
-      // capture the handler
-      Eff.capture <| fun h ->
-        printfn "[%s]: Println(%A)" h.name a
-        printfn "%A" a; k()
+  printfn "---"
 
+  let bar : Eff<_, Handler2> = foo()
 
-foo()
-|> Eff.handle Handlers.Handler1
-|> printfn "%A"
+  bar
+  |> Eff.handle { Handler2.name = "Handler2" }
+  |> printfn "%A"
 
-printfn "---"
+  printfn "---"
 
-let bar : Eff<_, Handlers.Handler2> = foo()
+  RandomInt 100
+  |> Eff.handle Handler1
+  |> printfn "Random: %d"
 
-bar
-|> Eff.handle { Handlers.Handler2.name = "Handler2" }
-|> printfn "%A"
-
-printfn "---"
-
-RandomInt 100
-|> Eff.handle Handlers.Handler1
-|> printfn "Random: %d"
+main ()
