@@ -12,9 +12,9 @@ module private Internal =
   let inline output<'a> = EffectOutput.EffectOutput(Unchecked.defaultof<'a>)
   let inline capture (f: ^handler -> Eff<'a, ^handler>) = Eff(fun h -> f h |> apply h)
 
-type Eff<'a, 'h>  with
+type Eff<'a, 'h> with
   static member Effect = output<'a>
-  static member inline Handle(Eff e: Eff<'b, ^g>, f): Eff<'c, ^g> = capture (e >> f)
+  static member inline Handle(Eff e: Eff<'b, ^g>, f: 'b -> Eff<'c, ^g>): Eff<'c, ^g> = capture (e >> f)
 
 [<RequireQualifiedAccess>]
 module Eff =
@@ -26,7 +26,7 @@ module Eff =
 
   let inline pure'(x: 'a): Eff<'b, ^h> = Eff(fun _ -> (^h: (static member Handle:'a->'b)x))
 
-  let inline bind(f: 'a -> _) (e: ^``Effect<'a>``): Eff<'b, ^h> when ^``Effect<'a>``: (static member Effect: EffectOutput<'a>) =
+  let inline bind(f: 'a -> Eff<'b, ^g>) (e: ^``Effect<'a>``): Eff<'b, ^h> when ^``Effect<'a>``: (static member Effect: EffectOutput<'a>) =
     ((^h or ^``Effect<'a>``): (static member Handle:_*_->_)e,f)
 
   let inline join (e: ^``Effect<^Effect<'a>>``): Eff<'a, ^handler> = bind id e

@@ -1,9 +1,9 @@
 [![](https://github.com/wraikny/EffFs/workflows/CI/badge.svg)](https://github.com/wraikny/EffFs/actions?workflow=CI)
 
 # EffFs
-Something like Algebraic Effects, but I don't know.  
+Some Effect System.  
 Multiple handlers cannot be composed.  
-This is a F# library.
+This is a F# library.  
 
 ## Example
 And [more examples](example/example.fsx)
