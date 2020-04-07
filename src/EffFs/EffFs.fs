@@ -26,7 +26,8 @@ module Eff =
 
   let inline pure'(x: 'a): Eff<'b, ^h> = Eff(fun _ -> (^h: (static member Handle:'a->'b)x))
 
-  let inline bind(f: 'a -> _) (e: ^``Effect<'a>``): Eff<'b, ^h> when ^``Effect<'a>``: (static member Effect: EffectOutput<'a>) =
+  let inline bind(f: 'a -> Eff<'b, ^h>) (e: ^``Effect<'a>``): Eff<'b, ^h>
+    when ^``Effect<'a>``: (static member Effect: EffectOutput<'a>) =
     ((^h or ^``Effect<'a>``): (static member Handle:_*_->_)e,f)
 
   let inline join (e: ^``Effect<^Effect<'a>>``): Eff<'a, ^handler> = bind id e
@@ -42,7 +43,7 @@ module Builder =
     member inline __.Return(x) = Eff.pure' x
 
     member inline __.Bind(e, f) = Eff.bind f e
-    
+
     member inline __.ReturnFrom(e) = Eff.bind Eff.pure' e
 
   let eff = EffBuilder()
