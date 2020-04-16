@@ -7,13 +7,13 @@ type RandomInt = RandomInt of int with
 type Println = Println of obj with
   static member Effect = Eff.output<unit>
 
-let inline hoge(): Eff<float, _> = eff {
+let inline hoge(): Eff<_, _> = eff {
   let! a = RandomInt 10000
   do! Println "Hello!"
   return (float a / 10000.0)
 }
 
-let inline foo(): Eff<'a, ^h> =
+let inline foo(): Eff<_, ^h> =
   eff {
     let! a = RandomInt 100
     let! x = hoge()
@@ -35,7 +35,7 @@ type Handler1 = Handler1 with
     printfn "%A" a; k()
 
 type Handler2 = { name : string } with
-  static member inline Handle(x) = x
+  static member inline Handle(x) = printfn "ValueHandler invoked"; x
 
   static member inline Handle(RandomInt a, k) =
     // capture the handler
