@@ -13,7 +13,7 @@ module private Internal =
   let inline capture (f: ^h -> Eff<'a, ^h>) = Eff(fun h -> f h |> apply h)
 
 type Eff<'a, 'h> with
-  static member Effect = output<'a>
+  static member Effect(_) = output<'t>
   static member inline Handle(Eff e: Eff<'b, ^g>, f: 'b -> Eff<'c, ^g>): Eff<'c, ^g> = capture (e >> f)
 
 [<RequireQualifiedAccess>]
@@ -28,7 +28,7 @@ module Eff =
   let inline pure'(x: 'a): Eff<'a, ^h> = Eff(fun _ -> x)
 
   let inline bind(f: 'a -> Eff<'b, ^g>) (e: ^``Effect<'a>``): Eff<'b, ^h>
-    when ^``Effect<'a>``: (static member Effect: EffectOutput<'a>) =
+    when ^``Effect<'a>``: (static member Effect: ^``Effect<'a>`` -> EffectOutput<'a>) =
     ((^h or ^g or ^``Effect<'a>``): (static member Handle:_*_->_)e,f)
 
   let inline join (e: ^``Effect<^Effect<'a>>``): Eff<'a, ^h> = bind id e

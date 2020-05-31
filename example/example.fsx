@@ -2,10 +2,10 @@
 open EffFs
 
 type RandomInt = RandomInt of int with
-  static member Effect = Eff.output<int>
+  static member Effect(_) = Eff.output<int>
 
 type Println = Println of obj with
-  static member Effect = Eff.output<unit>
+  static member Effect(_) = Eff.output<unit>
 
 let inline hoge(): Eff<_, _> = eff {
   let! a = RandomInt 10000
