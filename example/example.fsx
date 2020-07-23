@@ -20,6 +20,9 @@ let inline foo(): Eff<_, ^h> =
     do! Println x
     do! Println a
     let b = a + a
+    if true then
+      do! Println "Hello"
+    do! Println "Continuation"
     return (a, b)
   }
 

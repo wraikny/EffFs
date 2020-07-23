@@ -46,7 +46,13 @@ module Builder =
     member inline __.Return(x) = Eff.pure' x
 
     member inline __.Bind(e, f) = Eff.bind f e
-    
+
     member inline __.ReturnFrom(e) = Eff.bind Eff.pure' e
+
+    member inline __.Zero() = Eff.pure' ()
+
+    member inline __.Delay f = f ()
+
+    member inline __.Combine(a, b) = Eff.bind (fun() -> b) a
 
   let eff = EffBuilder()
