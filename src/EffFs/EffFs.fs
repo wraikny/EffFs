@@ -6,23 +6,15 @@ type EffectOutput<'a> = EffectOutput of 'a
 [<Struct>]
 type Eff<'a, 'h> = Eff of ('h -> 'a)
 
-[<AutoOpen>]
-module private Internal =
-  let inline apply h (Eff e) = e h
-  let inline output<'a> = EffectOutput.EffectOutput(Unchecked.defaultof<'a>)
-  let inline capture (f: ^h -> Eff<'a, ^h>) = Eff(fun h -> f h |> apply h)
-
-type Eff<'a, 'h> with
-  static member Effect(_) = output<'t>
-  static member inline Handle(Eff e: Eff<'b, ^g>, f: 'b -> Eff<'c, ^g>): Eff<'c, ^g> = capture (e >> f)
-
 [<RequireQualifiedAccess>]
 module Eff =
+  let inline private apply h (Eff e) = e h
+
   /// <summary>Mark Effect's output type</summary>
-  let inline output<'a> = output<'a>
+  let inline output<'a> = EffectOutput.EffectOutput(Unchecked.defaultof<'a>)
 
   /// <summary>Access to handler instance</summary>
-  let inline capture (f: _ -> Eff<'a, ^h>) = capture f
+  let inline capture (f: ^h -> Eff<'a, ^h>) = Eff(fun h -> f h |> apply h)
 
   // let inline pure'(x: 'a): Eff<'b, ^h> = Eff(fun _ -> (^h: (static member Handle:'a->'b)x))
   let inline pure'(x: 'a): Eff<'a, ^h> = Eff(fun _ -> x)
@@ -31,7 +23,7 @@ module Eff =
     when ^``Effect<'a>``: (static member Effect: ^``Effect<'a>`` -> EffectOutput<'a>) =
     ((^h or ^g or ^``Effect<'a>``): (static member Handle:_*_->_)e,f)
 
-  let inline join (e: ^``Effect<^Effect<'a>>``): Eff<'a, ^h> = bind id e
+  let inline flatten (e: ^``Effect<^Effect<'a>>``): Eff<'a, ^h> = bind id e
 
   let inline map f e = bind (fun x -> Eff(fun _ -> f x)) e
 
@@ -39,6 +31,11 @@ module Eff =
   let inline handle (handler: ^h) (eff: ^``Effect<'a>``): 'b =
     let inline valueHandle x = (^h: (static member Handle:_->_)x)
     bind (valueHandle >> pure') eff |> apply handler
+
+type Eff<'a, 'h> with
+  static member Effect(_) = Eff.output<'t>
+  static member inline Handle(Eff e: Eff<'b, ^g>, f: 'b -> Eff<'c, ^g>): Eff<'c, ^g> = Eff.capture (e >> f)
+
 
 [<AutoOpen>]
 module Builder =
