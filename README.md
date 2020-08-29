@@ -13,15 +13,15 @@ And [more examples](example/example.fsx)
 open EffFs
 
 type RandomInt = RandomInt of int with
-  static member Effect = Eff.output<int>
+  static member Effect = Eff.marker<int>
 
-type Println = Println of obj with
-  static member Effect = Eff.output<unit>
+type Logging = Logging of obj with
+  static member Effect = Eff.marker<unit>
 
 let inline foo() =
   eff {
     let! a = RandomInt 100
-    do! Println a
+    do! Logging (sprintf "%d" a)
     let b = a + a
     return (a, b)
   }
@@ -34,8 +34,8 @@ type Handler = Handler with
   static member inline Handle(RandomInt a, k) =
     rand.Next(a) |> k
 
-  static member inline Handle(Println a, k) =
-    printfn "%A" a; k()
+  static member inline Handle(Logging s, k) =
+    printfn "%s" s; k()
 
 foo()
 |> Eff.handle Handler

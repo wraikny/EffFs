@@ -2,14 +2,16 @@
 open EffFs
 
 type RandomInt = RandomInt of int with
-  static member Effect(_) = Eff.output<int>
+  static member Effect(_) = Eff.marker<int>
 
-type Println = Println of obj with
-  static member Effect(_) = Eff.output<unit>
+type Logging = Logging of string with
+  static member Effect(_) = Eff.marker<unit>
+
+let logfn fmt = Printf.kprintf (sprintf "%s" >> Logging) fmt
 
 let inline hoge(): Eff<_, _> = eff {
   let! a = RandomInt 10000
-  do! Println "Hello!"
+  do! Logging "Hello!"
   return (float a / 10000.0)
 }
 
@@ -17,12 +19,12 @@ let inline foo(): Eff<_, ^h> =
   eff {
     let! a = RandomInt 100
     let! x = hoge()
-    do! Println x
-    do! Println a
+    do! logfn "%f" x
+    do! logfn "%d" a
     let b = a + a
     if true then
-      do! Println "Hello"
-    do! Println "Continuation"
+      do! Logging "Hello"
+    do! Logging "Continuation"
     return (a, b)
   }
 
@@ -34,7 +36,7 @@ type Handler1 = Handler1 with
   static member inline Handle(RandomInt a, k) =
     rand.Next(a) |> k
 
-  static member inline Handle(Println a, k) =
+  static member inline Handle(Logging a, k) =
     printfn "%A" a; k()
 
 type Handler2 = { name : string } with
@@ -46,10 +48,10 @@ type Handler2 = { name : string } with
       printfn "[%s]: RandomInt(%d)" h.name a
       rand.Next(a) |> k
 
-  static member inline Handle(Println a, k) =
+  static member inline Handle(Logging a, k) =
     // capture the handler
     Eff.capture <| fun h ->
-      printfn "[%s]: Println(%A)" h.name a
+      printfn "[%s]: Logging(%A)" h.name a
       printfn "%A" a; k()
 
 
