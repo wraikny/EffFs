@@ -17,8 +17,8 @@ type Handler() =
   member private __.Rand with get() = rand
 
   static member inline Handle(x) = x
-  static member inline Handle(e, k) =
-    Eff.capture(fun (h: Handler) -> e |> Random.apply h.Rand |> k)
+  static member inline Handle(Random.RandomEffect f, k) =
+    Eff.capture(fun (h: Handler) -> f h.Rand |> k)
 
 let handler = Handler()
 

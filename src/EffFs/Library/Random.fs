@@ -2,11 +2,12 @@
 module EffFs.Library.Random
 open EffFs
 
+[<Struct>]
 type RandomEffect<'a> = RandomEffect of (System.Random -> 'a)
 with
   static member Effect(_: RandomEffect<'a>) = Eff.marker<'a>
 
-let inline apply r (RandomEffect f) = f r
+let inline private apply r (RandomEffect f) = f r
 
 let inline private bind f (RandomEffect random) =
   RandomEffect (fun r -> (f (random r)) |> apply r)
