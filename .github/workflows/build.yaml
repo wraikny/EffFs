@@ -17,18 +17,21 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ matrix.dotnet }}
 
+    - name: Restore
+      run: dotnet tool restore
+
     - name: Build
-      run: dotnet build src/EffFs
+      run: dotnet fake build
       env:
         # Work around https://github.com/actions/setup-dotnet/issues/29
         DOTNET_ROOT: ${{ runner.tool_cache }}/dncs/${{ matrix.dotnet }}/x64
         CI: true
 
     - name: Test
-      run: ./test.sh
+      run: dotnet fake build -t test
