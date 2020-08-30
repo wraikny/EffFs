@@ -1,19 +1,12 @@
 System.Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 #load "../src/EffFs/EffFs.fs"
 #load "../src/EffFs/Library/StateMachine.fs"
+#load "../src/EffFs/Library/Log.fs"
 
-module ESM = EffFs.Library.StateMachine
+open EffFs
+open EffFs.Library
 
-module Effect =
-  open EffFs
-
-  [<Struct>]
-  type LogEffect = LogEffect of string
-  with
-    static member Effect(_) = Eff.marker<unit>
-
-  let inline log format = Printf.kprintf (sprintf "%s" >> LogEffect) format
-
+module ESM = StateMachine
 
 module A =
   type State = { a: int }
@@ -25,8 +18,6 @@ module A =
     | NoOps -> state
 
 module B =
-  open EffFs
-
   type State = { b: int }
 
   // EffFs.StateMachine
@@ -67,14 +58,12 @@ module Program =
     static member Lift(m) = MsgOfA m
     static member Lift(m) = MsgOfB m
 
-  open EffFs
-
   let inline update (msg: Msg) (state) = eff {
     match (state, msg) with
     | StateOfA s, Msg.Trans'AtoB ->
-      do! Effect.log "A ---> B"
+      do! Log.log "A ---> B"
       let! x = ESM.stateEnter { B.b = s.a }
-      do! Effect.log "A <--- B"
+      do! Log.log "A <--- B"
       return StateOfA { a = x }
 
     | StateOfA s, Msg.MsgOfA m ->
@@ -90,7 +79,6 @@ module Program =
 
 
 open Program
-open EffFs
 
 let inline lift (a: ^a): ^b = ((^a or ^b): (static member Lift: ^a -> ^b) a)
 
@@ -98,7 +86,7 @@ let inline lift (a: ^a): ^b = ((^a or ^b): (static member Lift: ^a -> ^b) a)
 type Handler() =
   static member inline Handle(x) = x
 
-  static member inline Handle(Effect.LogEffect s, k) =
+  static member inline Handle(Log.LogEffect s, k) =
     printfn "[Log] %s" s; k()
 
 

@@ -15,5 +15,6 @@
     <Compile Include="EffFs.fs" />
     <Compile Include="Library/StateMachine.fs" />
     <Compile Include="Library/Random.fs" />
+    <Compile Include="Library/Log.fs" />
   </ItemGroup>
 </Project>
