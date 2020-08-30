@@ -34,7 +34,7 @@ type Handler = Handler with
     rand.Next(a) |> k
 
   static member inline Handle(Logging s, k) =
-    printfn "%s" s; k()
+    printfn "[Log] %s" s; k()
 
 foo()
 |> Eff.handle Handler
@@ -43,7 +43,7 @@ foo()
 
 // example output
 (*
-66
+[Log] 66
 (66, 132)
 *)
 ```
