@@ -14,7 +14,7 @@ open EffFs
 type RandomInt = RandomInt of int with
   static member Effect = Eff.marker<int>
 
-type Logging = Logging of obj with
+type Logging = Logging of string with
   static member Effect = Eff.marker<unit>
 
 let inline foo() =
