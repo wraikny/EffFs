@@ -9,8 +9,13 @@ with
 
 let inline private apply r (RandomEffect f) = f r
 
-let inline private bind f (RandomEffect random) =
+let inline pure' a = RandomEffect (fun _ -> a)
+
+let inline bind f (RandomEffect random) =
   RandomEffect (fun r -> (f (random r)) |> apply r)
+
+let inline map f (RandomEffect random) =
+  RandomEffect (fun r -> random r |> f)
 
 let bool = RandomEffect (fun r -> r.Next() % 2 = 0)
 
