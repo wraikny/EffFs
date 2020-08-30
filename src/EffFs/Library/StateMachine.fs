@@ -11,9 +11,10 @@ type StateEnterEffect< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTyp
 with
   static member inline Effect (_: StateEnterEffect< ^s, 'o >) = Eff.marker< 'o >
 
-  static member inline Handle (StateEnterEffect (s: ^s), k: 'o -> Eff<'os, ^h>): Eff< ^state, ^h >
-    when ^state : (static member StateEnter: ^s*('o -> 'os) -> ^state) =
-    Eff.capture(fun h -> s |> callStateEnter (k >> Eff.handle h) |> Eff.pure')
+let inline handle (StateEnterEffect.StateEnterEffect (s: ^s), k: 'o -> Eff<'os, ^h>): Eff< ^state, ^h >
+  when ^state : (static member StateEnter: ^s*('o -> 'os) -> ^state) =
+  Eff.capture(fun h -> s |> callStateEnter (k >> Eff.handle h) |> Eff.pure')
+
 
 [<Struct>]
 type StateStatus< 's, 'o > =

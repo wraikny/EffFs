@@ -48,15 +48,20 @@ module C =
     | Apply
     | Trans'B
     | MsgOfB of B.Msg
+  with
+    static member Lift(x) = MsgOfB x
   
   let inline update msg state = eff {
     match (state, msg) with
     | Base i, Apply -> return ESM.Completed i
+
     | Base i, Trans'B ->
       let! i = ESM.stateEnter { B.State.b = i }
       return Base i |> ESM.Pending
+
     | StateOfB (s, k), MsgOfB m ->
       return ESM.stateMap (B.update m) (s, k)
+
     | _ -> return ESM.Pending state
   }
 
@@ -88,6 +93,7 @@ module Program =
   with
     static member Lift(m) = MsgOfA m
     static member Lift(m) = MsgOfB m
+    static member Lift(m) = MsgOfC m
 
   let inline update (msg: Msg) (state) = eff {
     match (state, msg) with
@@ -126,6 +132,8 @@ let inline lift (a: ^a): ^b = ((^a or ^b): (static member Lift: ^a -> ^b) a)
 type Handler() =
   static member inline Handle(x) = x
 
+  static member inline Handle(e, k) = ESM.handle (e, k)
+
   static member inline Handle(Log.LogEffect s, k) =
     printfn "[Log] %s" s; k()
 
@@ -142,6 +150,12 @@ let result: StateMachine =
     lift B.Msg.Incr
     lift B.Msg.Incr
     lift B.Msg.Apply
+    Msg.Trans'AtoC
+    lift C.Msg.Trans'B
+    lift <| lift B.Msg.Incr
+    lift <| lift B.Msg.Incr
+    lift <| lift B.Msg.Apply
+    lift C.Msg.Apply
   ] |> Seq.fold (fun sm msg ->
     let sm = sm |> update msg |> Eff.handle handler
     printfn "%A:    %O\n" msg sm
@@ -149,5 +163,5 @@ let result: StateMachine =
   ) sm
 
 result |> function
-| StateOfA a when a.a = 3 -> printfn "Success %O" result
+| StateOfA a when a.a = 5 -> printfn "Success %O" result
 | _ -> failwithf "Unexpected result %O" result
