@@ -1,9 +1,8 @@
 [![](https://github.com/wraikny/EffFs/workflows/CI/badge.svg)](https://github.com/wraikny/EffFs/actions?workflow=CI)
 
 # EffFs
-Some Effect System.  
-Multiple handlers cannot be composed.  
-This is a F# library.  
+F# Effect System based on SRTP.  
+Caution: Multiple handlers cannot be composed.  
 
 ## Example
 And [more examples](example/example.fsx)
