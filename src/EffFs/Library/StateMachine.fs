@@ -2,24 +2,28 @@
 module EffFs.Library.StateMachine
 open EffFs
 
-let inline private callStateEnter (k: 'o -> ^outstate) (s: ^s): ^state
+let inline private callStateEnter (k: 'o -> 'os) (s: ^s): ^state
   when ^s: (static member StateOut: ^s -> EffectTypeMarker<'o>) =
-  (^state: (static member StateEnter: _*_ -> _) s,k)
+  (^state: (static member StateEnter: ^s*('o -> 'os) -> ^state) s,k)
 
 [<Struct; RequireQualifiedAccess>]
 type StateEnterEffect< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTypeMarker<'o>) > = StateEnterEffect of ^s
 with
   static member inline Effect (_: StateEnterEffect< ^s, 'o >) = Eff.marker< 'o >
 
-  static member inline Handle (StateEnterEffect (s: ^state), k: 'o -> Eff< ^a, ^h >): Eff< ^a, ^h > =
+  static member inline Handle (StateEnterEffect (s: ^s), k: 'o -> Eff<'os, ^h>): Eff< ^state, ^h >
+    when ^state : (static member StateEnter: ^s*('o -> 'os) -> ^state) =
     Eff.capture(fun h -> s |> callStateEnter (k >> Eff.handle h) |> Eff.pure')
 
 [<Struct>]
-type StateStatus< ^s, 'o > =
-  | Pending of state:^s
+type StateStatus< 's, 'o > =
+  | Pending of state:'s
   | Completed of output:'o
 with
-  static member inline StateEnter(s, k) = Pending (callStateEnter k s)
+  static member inline StateEnter(s: ^a, k: 'b -> 'c): StateStatus< ^state, _ >
+    when ^a : (static member StateOut: ^a->EffectTypeMarker<'b>)
+    and ^state : (static member StateEnter: ^a*('b -> 'c) -> ^state) =
+    Pending (callStateEnter k s)
 
 let inline stateEnter (state: ^s) = StateEnterEffect.StateEnterEffect state
 
