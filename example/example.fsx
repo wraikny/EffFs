@@ -15,18 +15,17 @@ let inline hoge(): Eff<_, _> = eff {
   return (float a / 10000.0)
 }
 
-let inline foo(): Eff<_, ^h> =
-  eff {
-    let! a = RandomInt 100
-    let! x = hoge()
-    do! logfn "%f" x
-    do! logfn "%d" a
-    let b = a + a
-    if true then
-      do! Logging "Hello"
-    do! Logging "Continuation"
-    return (a, b)
-  }
+let inline foo(): Eff<_, ^h> = eff {
+  let! a = RandomInt 100
+  let! x = hoge()
+  do! logfn "%f" x
+  do! logfn "%d" a
+  let b = a + a
+  if true then
+    do! Logging "Hello"
+  do! Logging "Continuation"
+  return (a, b)
+}
 
 let rand = System.Random()
 

@@ -17,13 +17,12 @@ type RandomInt = RandomInt of int with
 type Logging = Logging of string with
   static member Effect = Eff.marker<unit>
 
-let inline foo() =
-  eff {
-    let! a = RandomInt 100
-    do! Logging (sprintf "%d" a)
-    let b = a + a
-    return (a, b)
-  }
+let inline foo() = eff {
+  let! a = RandomInt 100
+  do! Logging (sprintf "%d" a)
+  let b = a + a
+  return (a, b)
+}
 
 let rand = System.Random()
 
