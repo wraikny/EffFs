@@ -44,6 +44,10 @@ module C =
     static member StateOut(_) = Eff.marker<StateOut>
     static member StateEnter(s, k) = StateOfB (s, k)
 
+    override x.ToString() = x |> function
+      | Base i -> sprintf "Base (%d)" i
+      | StateOfB (s, _) -> sprintf "StateOfB (%O)" s
+
   type Msg =
     | Apply
     | Trans'B
@@ -74,9 +78,9 @@ module Program =
     static member inline Init(s) = StateOfA s
 
     override x.ToString() = x |> function
-      | StateOfA s -> sprintf "StateOfA %A" s
-      | StateOfB (s, _) -> sprintf "StateOfB %A" s
-      | StateOfC (s, _) -> sprintf "StateOfC %A" s
+      | StateOfA s -> sprintf "StateOfA (%O)" s
+      | StateOfB (s, _) -> sprintf "StateOfB (%O)" s
+      | StateOfC (s, _) -> sprintf "StateOfC (%O)" s
 
   // EffFs.StateMachine
   type StateMachine with
