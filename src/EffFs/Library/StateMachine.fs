@@ -2,10 +2,12 @@
 module EffFs.Library.StateMachine
 open EffFs
 
-let inline private callStateEnter k s: ^a = (^a: (static member StateEnter: _*_ -> _) s,k)
+let inline private callStateEnter (k: 'o -> ^outstate) (s: ^s): ^state
+  when ^s: (static member StateOut: ^s -> EffectTypeMarker<'o>) =
+  (^state: (static member StateEnter: _*_ -> _) s,k)
 
 [<Struct; RequireQualifiedAccess>]
-type StateEnterEffect< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTypeMarker< 'o >) > = StateEnterEffect of ^s
+type StateEnterEffect< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTypeMarker<'o>) > = StateEnterEffect of ^s
 with
   static member inline Effect (_: StateEnterEffect< ^s, 'o >) = Eff.marker< 'o >
 
@@ -13,9 +15,11 @@ with
     Eff.capture(fun h -> s |> callStateEnter (k >> Eff.handle h) |> Eff.pure')
 
 [<Struct>]
-type StateStatus< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTypeMarker< 'o >)> =
+type StateStatus< ^s, 'o > =
   | Pending of state:^s
   | Completed of output:'o
+with
+  static member inline StateEnter(s, k) = Pending (callStateEnter k s)
 
 let inline stateEnter (state: ^s) = StateEnterEffect.StateEnterEffect state
 
