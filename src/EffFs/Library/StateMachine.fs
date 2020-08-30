@@ -19,7 +19,14 @@ type StateStatus< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTypeMark
 
 let inline stateEnter (state: ^s) = StateEnterEffect.StateEnterEffect state
 
-let inline stateMap f (s: ^s, k: 'o -> ^state) =
+let inline stateMap (f: ^s -> StateStatus< ^s, 'o>) (s: ^s, k: 'o -> ^state) =
   match f s with
   | Pending s -> callStateEnter k s
   | Completed o -> k o
+
+let inline stateMapEff (f: ^s -> Eff<StateStatus< ^s, 'o>, _>) (s: ^s, k: 'o -> ^state) =
+  eff {
+    match! f s with
+    | Pending s -> return callStateEnter k s
+    | Completed o -> return k o
+  }
