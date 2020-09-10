@@ -33,7 +33,8 @@ module StateStatus =
     | Pending x -> f x
     | Completed x -> Completed x
 
-  let inline map f state = bind (f >> pure') state
+  let inline mapPending f state = bind (f >> Pending) state
+  let inline mapCompleted f state = bind (f >> Completed) state
 
 
 let inline stateEnter (state: ^s) = StateEnterEffect.StateEnterEffect state
