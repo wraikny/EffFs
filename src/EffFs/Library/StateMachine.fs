@@ -31,7 +31,7 @@ module StateStatus =
 
   let inline bind f state = state |> function
     | Pending x -> f x
-    | x -> x
+    | Completed x -> Completed x
 
   let inline map f state = bind (f >> pure') state
 
