@@ -1,4 +1,3 @@
-[<RequireQualifiedAccess>]
 module EffFs.Library.StateMachine
 open EffFs
 
@@ -25,6 +24,17 @@ with
     when ^a : (static member StateOut: ^a->EffectTypeMarker<'b>)
     and ^state : (static member StateEnter: ^a*('b -> 'c) -> ^state) =
     Pending (callStateEnter k s)
+
+[<RequireQualifiedAccess>]
+module StateStatus =
+  let inline pure' x = Completed x
+
+  let inline bind f state = state |> function
+    | Pending x -> f x
+    | _ -> state
+
+  let inline map f state = bind (f >> pure') state
+
 
 let inline stateEnter (state: ^s) = StateEnterEffect.StateEnterEffect state
 
