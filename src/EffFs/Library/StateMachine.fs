@@ -1,9 +1,11 @@
 module EffFs.Library.StateMachine
 open EffFs
 
-let inline private callStateEnter (k: 'o -> 'os) (s: ^s): ^state
-  when ^s: (static member StateOut: ^s -> EffectTypeMarker<'o>) =
-  (^state: (static member StateEnter: ^s*('o -> 'os) -> ^state) s,k)
+module Internal =
+  let inline callStateEnter (k: 'o -> 'os) (s: ^s): ^state =
+    (^state: (static member StateEnter: ^s*('o -> 'os) -> ^state) s,k)
+
+open Internal
 
 [<Struct; RequireQualifiedAccess>]
 type StateEnterEffect< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTypeMarker<'o>) > = StateEnterEffect of ^s
