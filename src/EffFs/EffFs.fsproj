@@ -1,6 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>wraikny</Authors>
+    <Description>F# Effect System based on SRTP</Description>
+    <PackageProjectUrl>https://github.com/wraikny/EffFs</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Copyright>Copyright (c) 2020 wraikny</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>fsharp effectsystem</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
