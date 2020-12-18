@@ -11,6 +11,7 @@ let inline effectful (): Eff<_, _> = eff {
   do! Log.logf "%s" "world!"
 }
 
+[<Sealed>]
 type Handler() =
   static member inline Handle(x) = x
   static member inline Handle(Log.LogEffect s, k) =

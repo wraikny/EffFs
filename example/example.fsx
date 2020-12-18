@@ -1,9 +1,11 @@
 #load "../src/EffFs/EffFs.fs"
 open EffFs
 
+[<NoEquality; NoComparison>]
 type RandomInt = RandomInt of int with
   static member Effect(_) = Eff.marker<int>
 
+[<NoEquality; NoComparison>]
 type Logging = Logging of string with
   static member Effect(_) = Eff.marker<unit>
 
@@ -29,6 +31,7 @@ let inline foo(): Eff<_, ^h> = eff {
 
 let rand = System.Random()
 
+[<NoEquality; NoComparison>]
 type Handler1 = Handler1 with
   static member inline Handle(x) = x
 
@@ -38,6 +41,7 @@ type Handler1 = Handler1 with
   static member inline Handle(Logging a, k) =
     printfn "%A" a; k()
 
+[<NoEquality; NoComparison>]
 type Handler2 = { name : string } with
   static member inline Handle(x) = printfn "ValueHandler invoked"; x
 

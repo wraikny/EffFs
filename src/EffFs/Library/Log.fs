@@ -2,7 +2,7 @@
 module EffFs.Library.Log
 open EffFs
 
-[<Struct>]
+[<Struct; NoEquality; NoComparison>]
 type LogEffect = LogEffect of string
 with
   static member Effect(_) = Eff.marker<unit>

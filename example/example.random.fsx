@@ -11,6 +11,7 @@ let inline f() = eff {
   return! Random.array 10 (Random.int 0 a)
 }
 
+[<Sealed>]
 type Handler() =
   let rand = System.Random()
 

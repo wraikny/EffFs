@@ -2,7 +2,7 @@
 module EffFs.Library.Random
 open EffFs
 
-[<Struct>]
+[<Struct; NoEquality; NoComparison>]
 type RandomEffect<'a> = RandomEffect of (System.Random -> 'a)
 with
   static member Effect(_: RandomEffect<'a>) = Eff.marker<'a>

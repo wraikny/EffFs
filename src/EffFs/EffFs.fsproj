@@ -4,7 +4,7 @@
     <Authors>wraikny</Authors>
     <Description>F# Effect System based on SRTP</Description>
     <PackageProjectUrl>https://github.com/wraikny/EffFs</PackageProjectUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright (c) 2020 wraikny</Copyright>
     <RepositoryType>git</RepositoryType>
     <PackageTags>fsharp effectsystem</PackageTags>

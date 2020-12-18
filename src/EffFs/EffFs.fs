@@ -1,7 +1,7 @@
 ﻿namespace EffFs
 
-[<RequireQualifiedAccess>]
-type EffectTypeMarker<'a> = EffectTypeMarker of 'a
+[<AbstractClass; Sealed>]
+type EffectTypeMarker<'a> = class end
 
 [<Struct>]
 type Eff<'a, 'h> = Eff of ('h -> 'a)
@@ -12,7 +12,7 @@ module Eff =
   let inline private apply h (Eff e) = e h
 
   /// <summary>Mark Effect's type</summary>
-  let inline marker<'a> = EffectTypeMarker.EffectTypeMarker (Unchecked.defaultof<'a>)
+  let inline marker<'a> = Unchecked.defaultof<EffectTypeMarker<'a>>
 
   /// <summary>Access to handler instance</summary>
   let inline capture (f: ^h -> Eff<'a, ^h>) = Eff(fun h -> f h |> apply h)

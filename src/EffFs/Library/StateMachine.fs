@@ -7,7 +7,7 @@ module Internal =
 
 open Internal
 
-[<Struct; RequireQualifiedAccess>]
+[<Struct; NoEquality; NoComparison; RequireQualifiedAccess>]
 type StateEnterEffect< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTypeMarker<'o>) > = StateEnterEffect of ^s
 with
   static member inline Effect (_: StateEnterEffect< ^s, 'o >) = Eff.marker< 'o >
@@ -17,7 +17,7 @@ let inline handle (StateEnterEffect.StateEnterEffect (s: ^s), k: 'o -> Eff<'os, 
   Eff.capture(fun h -> s |> callStateEnter (k >> Eff.handle h) |> Eff.pure')
 
 
-[<Struct>]
+[<Struct; NoEquality; NoComparison>]
 type StateStatus< 's, 'o > =
   | Pending of state:'s
   | Completed of output:'o
