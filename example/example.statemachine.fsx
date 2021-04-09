@@ -5,6 +5,7 @@ System.Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 open EffFs
 open EffFs.Library
+open EffFs.Library.Log
 
 module ESM = StateMachine
 
@@ -54,7 +55,7 @@ module C =
     | MsgOfB of B.Msg
   with
     static member Lift(x) = MsgOfB x
-  
+
   let inline update msg state = eff {
     match (state, msg) with
     | Base i, Apply -> return ESM.Completed i
@@ -102,15 +103,15 @@ module Program =
   let inline update (msg: Msg) (state) = eff {
     match (state, msg) with
     | StateOfA s, Msg.Trans'AtoB ->
-      do! Log.log "A ---> B"
+      do! log "A ---> B"
       let! x = ESM.stateEnter { B.b = s.a }
-      do! Log.log "A <--- B"
+      do! log "A <--- B"
       return StateOfA { a = x }
 
     | StateOfA s, Msg.Trans'AtoC ->
-      do! Log.log "A ---> C"
+      do! log "A ---> C"
       let! x = ESM.stateEnter (C.Base s.a)
-      do! Log.log "A <--- C"
+      do! log "A <--- C"
       return StateOfA { a = x }
 
     | StateOfA s, Msg.MsgOfA m ->
@@ -138,7 +139,7 @@ type Handler() =
 
   static member inline Handle(e, k) = ESM.handle (e, k)
 
-  static member inline Handle(Log.LogEffect s, k) =
+  static member inline Handle(LogEffect s, k) =
     printfn "[Log] %s" s; k()
 
 

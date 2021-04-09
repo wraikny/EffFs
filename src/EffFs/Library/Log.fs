@@ -1,4 +1,3 @@
-[<RequireQualifiedAccess>]
 module EffFs.Library.Log
 open EffFs
 
@@ -9,4 +8,4 @@ with
 
 let inline log msg = LogEffect msg
 
-let inline logf fmt = Printf.kprintf (LogEffect) fmt
+let inline logf fmt = Printf.kprintf LogEffect fmt
