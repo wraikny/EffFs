@@ -2,7 +2,9 @@
 source https://api.nuget.org/v3/index.json
 nuget Fake.DotNet.Cli
 nuget Fake.IO.FileSystem
-nuget Fake.Core.Target //"
+nuget Fake.Core.Target
+nuget Fake.Core.ReleaseNotes
+nuget Fake.DotNet.AssemblyInfoFile //"
 
 #load ".fake/build.fsx/intellisense.fsx"
 #r "netstandard"
@@ -15,6 +17,8 @@ open Fake.IO
 open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 
+Target.initEnvironment()
+
 let dotnet cmd arg =
   let res = DotNet.exec id cmd arg
   if not res.OK then
@@ -24,7 +28,16 @@ let dotnet cmd arg =
 let fsiExec path =
   dotnet "fsi" (sprintf "--exec %s" path)
 
-Target.initEnvironment()
+let release = ReleaseNotes.load "RELEASE_NOTES.md"
+
+Target.create "AssemblyInfo" (fun _ ->
+  [
+    AssemblyInfo.Version release.AssemblyVersion
+    AssemblyInfo.FileVersion release.AssemblyVersion
+    AssemblyInfo.InformationalVersion release.NugetVersion
+  ]
+  |> AssemblyInfoFile.createFSharp "./src/EffFs/AssemblyInfo.fs"
+)
 
 Target.create "Test" (fun _ ->
   !! "example/*.fsx"
@@ -44,6 +57,22 @@ Target.create "Clean" (fun _ ->
 Target.create "Build" (fun _ ->
   !! "src/**/*.*proj"
   |> Seq.iter (DotNet.build id)
+)
+
+Target.create "Pack" (fun _ ->
+  !! "src/**/*.*proj"
+  |> Seq.iter (DotNet.pack (fun opt ->
+    { opt with
+        Configuration = DotNet.BuildConfiguration.Release
+        OutputPath = Some "output/packages/"
+        MSBuildParams = {
+          opt.MSBuildParams with
+            Properties = [
+              "PackageVersion", release.NugetVersion
+            ] @ opt.MSBuildParams.Properties
+        }
+    }
+  ))
 )
 
 
