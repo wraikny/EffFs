@@ -1,6 +1,8 @@
 module EffFs.Library.StateMachine
 open EffFs
+open System.ComponentModel
 
+[<EditorBrowsable(EditorBrowsableState.Never)>]
 module Internal =
   let inline callStateEnter (k: 'o -> 'os) (s: ^s): ^state =
     (^state: (static member StateEnter: ^s*('o -> 'os) -> ^state) s,k)
@@ -8,9 +10,11 @@ module Internal =
 open Internal
 
 [<Struct; NoEquality; NoComparison; RequireQualifiedAccess>]
-type StateEnterEffect< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTypeMarker<'o>) > = StateEnterEffect of ^s
+type StateEnterEffect< ^s, 'o when ^s : (static member StateOut: ^s -> EffectTypeMarker<'o>) >
+  = StateEnterEffect of ^s
 with
   static member inline Effect (_: StateEnterEffect< ^s, 'o >) = Eff.marker< 'o >
+
 
 let inline handle (StateEnterEffect.StateEnterEffect (s: ^s), k: 'o -> Eff<'os, ^h>): Eff< ^state, ^h >
   when ^state : (static member StateEnter: ^s*('o -> 'os) -> ^state) =
@@ -27,6 +31,7 @@ with
     and ^state : (static member StateEnter: ^a*('b -> 'c) -> ^state) =
     Pending (callStateEnter k s)
 
+
 [<RequireQualifiedAccess>]
 module StateStatus =
   let inline pure' x = Completed x
@@ -39,10 +44,9 @@ module StateStatus =
     | Pending x -> onPending x |> Pending
     | Completed x -> onCompleted x |> Completed
 
-  
+
   let inline mapPending f state = fold f id state
   let inline mapCompleted f state = fold id f state
-
 
 
 let inline stateEnter (state: ^s) = StateEnterEffect.StateEnterEffect state
