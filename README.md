@@ -1,4 +1,5 @@
 [![](https://github.com/wraikny/EffFs/workflows/CI/badge.svg)](https://github.com/wraikny/EffFs/actions?workflow=CI)
+[![Nuget](https://img.shields.io/nuget/v/EffFs?style=plastic)](https://www.nuget.org/packages/EffFs/)
 
 # EffFs
 F# Effect System based on SRTP.  
