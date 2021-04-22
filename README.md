@@ -56,15 +56,23 @@ foo()
 ```
 
 ## Build
+.NET 5.0 or later is required.
+
 ```sh
-$ dotnet --version
-3.1.101
 $ dotnet build src/EffFs # Debug
 $ dotnet build src/EffFs -c Release
 ```
 
 
-## Example
+## Examples
 ```
 $ dotnet fsi --exec example/example.fs
+```
+
+## Make Nuget Package
+
+```
+$ # edit RELEASE_NOTES.md
+$ dotnet fake build -t assemblyinfo
+$ dotnet fake build -t publish
 ```
