@@ -26,7 +26,7 @@ let dotnet cmd arg =
     failwithf "failed 'dotnet %s %s'" cmd arg
 
 let fsiExec path =
-  dotnet "fsi" (sprintf "--exec %s" path)
+  dotnet "fsi" $"--langversion:preview %s{path}"
 
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 

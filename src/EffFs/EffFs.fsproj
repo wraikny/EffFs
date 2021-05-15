@@ -21,6 +21,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="EffFs.fs" />
+    <Compile Include="DynamicHandler.fs" />
     <Compile Include="Library/StateMachine.fs" />
     <Compile Include="Library/Random.fs" />
     <Compile Include="Library/Log.fs" />

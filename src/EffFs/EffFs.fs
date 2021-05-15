@@ -30,7 +30,7 @@ module Eff =
 
   /// <summary>Handle effect with given handler</summary>
   let inline handle (handler: ^h) (eff: ^``Effect<'a>``): 'b =
-    let inline valueHandle x = (^h: (static member Handle:_->_)x)
+    let inline valueHandle x = (^h: (static member Value:_*_->_)handler,x)
     bind (valueHandle >> pure') eff |> apply handler
 
 type Eff<'a, 'h> with

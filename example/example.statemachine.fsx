@@ -135,7 +135,7 @@ let inline lift (a: ^a): ^b = ((^a or ^b): (static member Lift: ^a -> ^b) a)
 
 [<Sealed>]
 type Handler() =
-  static member inline Handle(x) = x
+  static member inline Value(_, x) = x
 
   static member inline Handle(e, k) = ESM.handle (e, k)
 

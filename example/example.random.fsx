@@ -15,7 +15,7 @@ let inline f() = eff {
 type Handler(seed) =
   member val private Rand = System.Random(seed) with get
 
-  static member inline Handle(x) = x
+  static member inline Value(_, x) = x
   static member inline Handle(RandomEffect f, k) =
     Eff.capture(fun (h: Handler) -> f h.Rand |> k)
 

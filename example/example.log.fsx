@@ -13,7 +13,7 @@ let inline effectful (): Eff<_, _> = eff {
 
 [<Sealed>]
 type Handler() =
-  static member inline Handle(x) = x
+  static member inline Value(_, x) = x
   static member inline Handle(Log.LogEffect s, k) =
     let date = System.DateTime.Now
     printfn "[Log][%O] %s" date s; k()

@@ -33,7 +33,7 @@ let rand = System.Random()
 
 [<NoEquality; NoComparison>]
 type Handler1 = Handler1 with
-  static member inline Handle(x) = x
+  static member inline Value(_, x) = x
 
   static member inline Handle(RandomInt a, k) =
     rand.Next(a) |> k
@@ -43,7 +43,7 @@ type Handler1 = Handler1 with
 
 [<NoEquality; NoComparison>]
 type Handler2 = { name : string } with
-  static member inline Handle(x) = printfn "ValueHandler invoked"; x
+  static member inline Value(_, x) = printfn "ValueHandler invoked"; x
 
   static member inline Handle(RandomInt a, k) =
     // capture the handler
