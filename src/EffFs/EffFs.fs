@@ -20,11 +20,11 @@ module Eff =
   // let inline pure'(x: 'a): Eff<'b, ^h> = Eff(fun _ -> (^h: (static member Handle:'a->'b)x))
   let inline pure'(x: 'a): Eff<'a, ^h> = Eff(fun _ -> x)
 
-  let inline bind(f: 'a -> Eff<'b, ^g>) (e: ^``Effect<'a>``): Eff<'b, ^h>
+  let inline bind(f: 'a -> Eff<'b, ^g>) (e: ^``Effect<'a>``): Eff<'c, ^h>
     when ^``Effect<'a>``: (static member Effect: ^``Effect<'a>`` -> EffectTypeMarker<'a>) =
     ((^h or ^g or ^``Effect<'a>``): (static member Handle:_*_->_)e,f)
 
-  let inline flatten (e: ^``Effect<^Effect<'a>>``): Eff<'a, ^h> = bind id e
+  let inline flatten (e: ^``Effect<^Effect<'a>>``): Eff<'b, ^h> = bind id e
 
   let inline map f e = bind (fun x -> Eff(fun _ -> f x)) e
 
