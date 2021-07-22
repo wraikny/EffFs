@@ -5,7 +5,7 @@
     <Description>F# Effect System based on SRTP</Description>
     <PackageProjectUrl>https://github.com/wraikny/EffFs</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright (c) 2020 wraikny</Copyright>
+    <Copyright>Copyright (c) 2020 - 2021 wraikny</Copyright>
     <RepositoryType>git</RepositoryType>
     <PackageTags>fsharp effectsystem di dependencyinjection</PackageTags>
   </PropertyGroup>

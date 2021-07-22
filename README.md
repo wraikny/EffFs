@@ -74,5 +74,5 @@ $ dotnet fsi --exec example/example.fs
 ```
 $ # edit RELEASE_NOTES.md
 $ dotnet fake build -t assemblyinfo
-$ dotnet fake build -t publish
+$ dotnet fake build -t pack
 ```
