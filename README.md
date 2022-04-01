@@ -20,10 +20,10 @@ And [more examples](example/example.fsx)
 open EffFs
 
 type RandomInt = RandomInt of int with
-  static member Effect = Eff.marker<int>
+  static member Effect(_) = Eff.marker<int>
 
 type Logging = Logging of string with
-  static member Effect = Eff.marker<unit>
+  static member Effect(_) = Eff.marker<unit>
 
 let inline foo() = eff {
   let! a = RandomInt 100
