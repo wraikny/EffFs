@@ -1,5 +1,7 @@
 ﻿namespace EffFs
 
+open System.ComponentModel
+
 [<AbstractClass; Sealed>]
 type EffectTypeMarker<'a> = class end
 
@@ -27,6 +29,14 @@ module Eff =
   let inline flatten (e: ^``Effect<^Effect<'a>>``): Eff<'b, ^h> = bind id e
 
   let inline map f e = bind (fun x -> Eff(fun _ -> f x)) e
+
+  [<EditorBrowsable(EditorBrowsableState.Never)>]
+  type Recursive<'a, 'b, 'c, 'h> = delegate of Recursive<'a, 'b, 'c, 'h> -> ('a -> Eff<'b, 'h>)
+
+  /// <summary>Z Combinator to define recursive function</summary>
+  let inline fix f =
+    Recursive(fun g -> f (fun x -> g.Invoke g x))
+    |> (fun (r: Recursive<_, _, _, _>) -> r.Invoke r)
 
   /// <summary>Handle effect with given handler</summary>
   let inline handle (handler: ^h) (eff: ^``Effect<'a>``): 'b =
