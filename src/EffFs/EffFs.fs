@@ -39,7 +39,7 @@ module Eff =
 
       static member Handle(e: Dummy1<_>, f, _impl: Default1): Eff<'c, _> = f e.Value1
 
-      // Priority 2
+      // // Priority 2
       static member inline Handle(e: ^``Effect<'a>``, f:'a -> Eff<'b, ^h1>, [<Optional>]_impl: Default2): Eff<'c, ^h2>
         when ^``Effect<'a>``: (static member Effect: ^``Effect<'a>`` -> EffectTypeMarker<'a>) =
         (^``Effect<'a>``: (static member Handle:_*_->_)e,f)
@@ -56,7 +56,8 @@ module Eff =
       static member Handle(e: Dummy1<_>, f, _impl: Default3): Eff<'c, _> = f e.Value1
 
       // invoke
-      static member inline Invoke (f: 'a -> Eff<'b, ^g>) (e: ^``Effect<'a>``): Eff<'c, ^h> =
+      static member inline Invoke (f: 'a -> Eff<'b, ^g>) (e: ^``Effect<'a>``): Eff<'c, ^h>
+        when ^``Effect<'a>``: (static member Effect: ^``Effect<'a>`` -> EffectTypeMarker<'a>) =
         let inline call_2 (impl: ^impl, input, f, _handler :^handler) = ((^impl or ^handler): (static member Handle: _*_*_ -> _) input,f,impl)
         let inline call   (impl: 'impl, input, f, handler) = call_2 (impl, input, f, handler)
         call (Unchecked.defaultof<Handle>, e, f, Unchecked.defaultof< ^h>)
