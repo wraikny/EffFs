@@ -5,20 +5,25 @@
 open EffFs
 open EffFs.DynamicHandler
 
-type Answer = Answer with
-  static member Effect(_) = Eff.marker<int>
+type Answer = Answer
+  with
 
-type Print = Print of string with
+    static member Effect(_) = Eff.marker<int>
+
+type Print =
+  | Print of string
+
   static member Effect(_) = Eff.marker<unit>
 
-let inline compute () = eff {
-  let! x = Answer
-  let! y = Answer
-  do! Print <| string(x + y)
-  return x * y
-}
+let inline compute () =
+  eff {
+    let! x = Answer
+    let! y = Answer
+    do! Print <| string (x + y)
+    return x * y
+  }
 
-compute()
+compute ()
 |> Eff.handle (
   Eff.dynamic {
     value (fun x -> x * 1000)
@@ -28,17 +33,16 @@ compute()
 )
 |> printfn "Result: %A"
 
-let valueHandler() = Eff.dynamic { value (fun x -> x) }
+let valueHandler () = Eff.dynamic { value (fun x -> x) }
 let answerHandler = Eff.dynamic { handle (fun Answer -> 42) }
 let printHandler = Eff.dynamic { handle (fun (Print s) -> printfn "[Dynamic]%s" s) }
 
-compute()
+compute ()
 |> Eff.handle (
   Eff.dynamic {
     compose answerHandler
-    compose (valueHandler())
+    compose (valueHandler ())
     compose printHandler
   }
 )
 |> printfn "Composed: %A"
-

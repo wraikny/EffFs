@@ -8,9 +8,9 @@ type DynamicHandler<'i, 'o> internal (valueHandler, handlers: IReadOnlyDictionar
   member val ValueHandler = valueHandler
   member val Handlers = handlers
 
-  static member Value(h: DynamicHandler<'i, 'o>, x: 'i): 'o = h.ValueHandler(x)
+  static member Value(h: DynamicHandler<'i, 'o>, x: 'i) : 'o = h.ValueHandler(x)
 
-  static member inline Handle(e: obj, k: 'a -> Eff<_, DynamicHandler<_, _>>): Eff<_, DynamicHandler<_, _>> =
+  static member inline Handle(e: obj, k: 'a -> Eff<_, DynamicHandler<_, _>>) : Eff<_, DynamicHandler<_, _>> =
     Eff.capture (fun (h: DynamicHandler<_, _>) ->
       let ty = e.GetType()
 
@@ -23,8 +23,13 @@ type DynamicHandler<'i, 'o> internal (valueHandler, handlers: IReadOnlyDictionar
 
   static member internal Compose(valueHandler, d1: DynamicHandler<_, _>, d2: DynamicHandler<_, _>) =
     let d = Dictionary<_, _>()
-    for x in d1.Handlers do d.[x.Key] <- x.Value
-    for x in d2.Handlers do d.[x.Key] <- x.Value
+
+    for x in d1.Handlers do
+      d.[x.Key] <- x.Value
+
+    for x in d2.Handlers do
+      d.[x.Key] <- x.Value
+
     DynamicHandler<_, _>(valueHandler, d)
 
 
@@ -44,7 +49,10 @@ type DynamicHandlerBuilder =
 
   member __.Run((valueHandler, handlers: (Type * obj) list)) =
     let d = new Dictionary<Type, obj>()
-    for (k, v) in handlers do d.[k] <- v
+
+    for (k, v) in handlers do
+      d.[k] <- v
+
     DynamicHandler(valueHandler, d)
 
   member inline __.Yield(_) = ((), ())
@@ -53,32 +61,36 @@ type DynamicHandlerBuilder =
   member __.ValueHandle(((), d), f: 'i -> 'o) = (f, d)
 
   [<CustomOperationAttribute("handle")>]
-  member inline __.AddHandle((vh, d: (Type * obj) list), f: ^e -> 'a): _
-    when 'e: (static member Effect: 'e -> EffectTypeMarker<'a>) =
-    let h : obj -> 'a = unbox< ^e > >> f
+  member inline __.AddHandle
+    (
+      (vh, d: (Type * obj) list),
+      f: ^e -> 'a
+    ) : _ when 'e: (static member Effect: 'e -> EffectTypeMarker<'a>) =
+    let h: obj -> 'a = unbox< ^e> >> f
     (vh, (typeof<'e>, box h) :: d)
 
   [<CustomOperationAttribute("handle")>]
-  member inline this.AddHandle((vh, ()), f) =
-    this.AddHandle((vh, List.empty), f)
+  member inline this.AddHandle((vh, ()), f) = this.AddHandle((vh, List.empty), f)
 
   [<CustomOperationAttribute("compose")>]
   member this.Compose(((), hs), ValueDraft f) = this.ValueHandle(((), hs), f)
 
   [<CustomOperationAttribute("compose")>]
   member __.Compose((vh, hs: (Type * obj) list), HandlersDraft handlers) =
-    if handlers.IsEmpty then (vh, hs)
-    else (vh, hs |> List.append handlers)
+    if handlers.IsEmpty then
+      (vh, hs)
+    else
+      (vh, hs |> List.append handlers)
 
   [<CustomOperationAttribute("compose")>]
-  member __.Compose((vh, ()), HandlersDraft handlers) =
-    (vh, handlers)
+  member __.Compose((vh, ()), HandlersDraft handlers) = (vh, handlers)
 
   [<CustomOperationAttribute("compose")>]
   member __.Compose(((), hs: (Type * obj) list), handler: DynamicHandler<'i, 'o>) =
-    handler.Handlers.Count |> function
-    | 0 -> (handler.ValueHandler, hs)
-    | _ -> (handler.ValueHandler, [ for x in handler.Handlers -> (x.Key, x.Value)])
+    handler.Handlers.Count
+    |> function
+      | 0 -> (handler.ValueHandler, hs)
+      | _ -> (handler.ValueHandler, [ for x in handler.Handlers -> (x.Key, x.Value) ])
 
   [<CustomOperationAttribute("compose")>]
   member __.Compose(((), ()), handler: DynamicHandler<'i, 'o>) =
@@ -89,4 +101,5 @@ type DynamicHandlerBuilder =
 module Eff =
   let dynamic = new DynamicHandlerBuilder()
 
-  let compose valueHandler d1 d2 = DynamicHandler.Compose(valueHandler, d1, d2)
+  let compose valueHandler d1 d2 =
+    DynamicHandler.Compose(valueHandler, d1, d2)

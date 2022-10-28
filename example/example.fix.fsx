@@ -1,28 +1,36 @@
 #load "../src/EffFs/EffFs.fs"
 open EffFs
 
-type IntE = IntE with
-  static member Effect(_) = Eff.marker<int>
+type IntE = IntE
+  with
 
-type PrintE = PrintE of string with
+    static member Effect(_) = Eff.marker<int>
+
+type PrintE =
+  | PrintE of string
+
   static member Effect(_) = Eff.marker<unit>
 
 let inline test n =
-  Eff.fix (fun f n -> eff {
-    if n > 100 then
-      return n
-    else
-      let! a = IntE
-      do! PrintE $"{a}"
-      return! f (n + a)
-  }) n
+  Eff.fix
+    (fun f n ->
+      eff {
+        if n > 100 then
+          return n
+        else
+          let! a = IntE
+          do! PrintE $"{a}"
+          return! f (n + a)
+      }
+    )
+    n
 
 type Handler() =
   member val private Count = 0 with get, set
   static member inline Value(_, x) = x
 
   static member inline Handle(IntE, k) =
-    Eff.capture(fun (h: Handler) ->
+    Eff.capture (fun (h: Handler) ->
       let count = h.Count
       h.Count <- count + 1
       count |> k
@@ -30,6 +38,7 @@ type Handler() =
 
   static member inline Handle(PrintE s, k) =
     let date = System.DateTime.Now
-    printfn "[Log][%O] %s" date s; k()
+    printfn "[Log][%O] %s" date s
+    k ()
 
 test 3 |> Eff.handle (Handler()) |> printfn "%d"
