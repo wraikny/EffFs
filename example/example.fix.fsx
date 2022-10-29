@@ -28,7 +28,7 @@ let inline test n =
     n
 
 type Handler() =
-  member val private Count = 0 with get, set
+  member val Count = 0 with get, set
   static member inline Value(_, x) = x
 
   static member inline Handle(IntE, k) =
