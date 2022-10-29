@@ -1,11 +1,13 @@
 #load "../src/EffFs/EffFs.fs"
 open EffFs
 
+[<Struct; NoEquality; NoComparison>]
 type IntE = IntE
   with
 
     static member Effect(_) = Eff.marker<int>
 
+[<Struct; NoEquality; NoComparison>]
 type PrintE =
   | PrintE of string
 

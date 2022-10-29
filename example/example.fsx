@@ -1,13 +1,13 @@
 #load "../src/EffFs/EffFs.fs"
 open EffFs
 
-[<NoEquality; NoComparison>]
+[<Struct; NoEquality; NoComparison>]
 type RandomInt =
   | RandomInt of int
 
   static member Effect(_) = Eff.marker<int>
 
-[<NoEquality; NoComparison>]
+[<Struct; NoEquality; NoComparison>]
 type Logging =
   | Logging of string
 
@@ -40,10 +40,9 @@ let inline foo () : Eff<_, ^h> =
 
 let rand = System.Random()
 
-[<NoEquality; NoComparison>]
-type Handler1 = Handler1
-  with
-
+[<Struct; NoEquality; NoComparison>]
+type Handler1 =
+  struct
     static member inline Value(_, x) = x
 
     static member inline Handle(RandomInt a, k) = rand.Next(a) |> k
@@ -51,6 +50,7 @@ type Handler1 = Handler1
     static member inline Handle(Logging a, k) =
       printfn "%A" a
       k ()
+  end
 
 [<NoEquality; NoComparison>]
 type Handler2 =
@@ -77,7 +77,7 @@ type Handler2 =
 
 
 let main () =
-  foo () |> Eff.handle Handler1 |> printfn "%A"
+  foo () |> Eff.handle (Handler1()) |> printfn "%A"
 
   printfn "---"
 
@@ -87,6 +87,6 @@ let main () =
 
   printfn "---"
 
-  RandomInt 100 |> Eff.handle Handler1 |> printfn "Random: %d"
+  RandomInt 100 |> Eff.handle (Handler1()) |> printfn "Random: %d"
 
 main ()
