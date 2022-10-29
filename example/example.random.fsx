@@ -15,7 +15,7 @@ let inline f () =
 
 [<Sealed>]
 type Handler(seed) =
-  member val private Rand = System.Random(seed)
+  member val Rand = System.Random(seed)
 
   static member inline Value(_, x) = x
 

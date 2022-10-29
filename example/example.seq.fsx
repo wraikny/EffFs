@@ -11,7 +11,7 @@ type SeqE<'a> =
 type Handler() =
   static member Value(_, x) = x
 
-  static member Handle(RepeatE xs, k: int -> Eff<_, _>) =
+  static member inline Handle(RepeatE xs, k: int -> Eff<_, _>) =
     Eff(fun (h: Handler) -> Seq.map (k >> Eff.handle h) xs)
 
 let inline test1 () : Eff<_, _> =
