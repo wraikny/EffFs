@@ -1,6 +1,5 @@
-// #load "../src/EffFs/EffFs.fs"
-// #load "../src/EffFs/DynamicHandler.fs"
-#r "../src/EffFs/bin/Release/netstandard2.1/EffFs.dll"
+#load "../src/EffFs/EffFs.fs"
+#load "../src/EffFs/DynamicHandler.fs"
 
 open EffFs
 open EffFs.DynamicHandler
