@@ -1,21 +1,32 @@
-#r "paket:
-source https://api.nuget.org/v3/index.json
-nuget Fake.DotNet.Cli
-nuget Fake.IO.FileSystem
-nuget Fake.Core.Target
-nuget Fake.Core.ReleaseNotes
-nuget Fake.DotNet.AssemblyInfoFile //"
+#!dotnet fsi
 
-#load ".fake/build.fsx/intellisense.fsx"
 #r "netstandard"
+#r "nuget: MSBuild.StructuredLogger"
+#r "nuget: Fake.Core"
+#r "nuget: Fake.Core.Target"
+#r "nuget: Fake.Core.ReleaseNotes"
+#r "nuget: Fake.IO.FileSystem"
+#r "nuget: Fake.DotNet.Cli"
+#r "nuget: Fake.DotNet.AssemblyInfoFile"
+#r "nuget: Fake.Net.Http"
+#r "nuget: FSharp.Json"
 
 open System
 
+
 open Fake.Core
+open Fake.Core.TargetOperators
 open Fake.DotNet
 open Fake.IO
 open Fake.IO.Globbing.Operators
-open Fake.Core.TargetOperators
+
+// Boilerplate
+System.Environment.GetCommandLineArgs()
+|> Array.skip 2 // skip fsi.exe; build.fsx
+|> Array.toList
+|> Context.FakeExecutionContext.Create false __SOURCE_FILE__
+|> Context.RuntimeContext.Fake
+|> Context.setExecutionContext
 
 Target.initEnvironment ()
 
@@ -27,7 +38,7 @@ let dotnet cmd arg =
     failwithf "failed 'dotnet %s %s'" cmd arg
 
 let fsiExec path =
-  dotnet "fsi" $"--langversion:preview %s{path}"
+  dotnet "fsi" path
 
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
