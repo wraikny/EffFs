@@ -64,16 +64,16 @@ type Handler2 =
     // capture the handler
     Eff.capture
     <| fun h ->
-         printfn "[%s]: RandomInt(%d)" h.name a
-         rand.Next(a) |> k
+      printfn "[%s]: RandomInt(%d)" h.name a
+      rand.Next(a) |> k
 
   static member inline Handle(Logging a, k) =
     // capture the handler
     Eff.capture
     <| fun h ->
-         printfn "[%s]: Logging(%A)" h.name a
-         printfn "%A" a
-         k ()
+      printfn "[%s]: Logging(%A)" h.name a
+      printfn "%A" a
+      k ()
 
 
 let main () =

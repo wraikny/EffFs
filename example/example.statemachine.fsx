@@ -53,7 +53,7 @@ module C =
       x
       |> function
         | Base i -> sprintf "Base (%d)" i
-        | StateOfB (s, _) -> sprintf "StateOfB (%O)" s
+        | StateOfB(s, _) -> sprintf "StateOfB (%O)" s
 
   type Msg =
     | Apply
@@ -71,7 +71,7 @@ module C =
         let! i = ESM.stateEnter { B.State.b = i }
         return Base i |> ESM.Pending
 
-      | StateOfB (s, k), MsgOfB m -> return ESM.stateMap (B.update m) (s, k)
+      | StateOfB(s, k), MsgOfB m -> return ESM.stateMap (B.update m) (s, k)
 
       | _ -> return ESM.Pending state
     }
@@ -88,8 +88,8 @@ module Program =
       x
       |> function
         | StateOfA s -> sprintf "StateOfA (%O)" s
-        | StateOfB (s, _) -> sprintf "StateOfB (%O)" s
-        | StateOfC (s, _) -> sprintf "StateOfC (%O)" s
+        | StateOfB(s, _) -> sprintf "StateOfB (%O)" s
+        | StateOfC(s, _) -> sprintf "StateOfC (%O)" s
 
   // EffFs.StateMachine
   type StateMachine with
@@ -128,9 +128,9 @@ module Program =
         let s = A.update m s
         return StateOfA s
 
-      | StateOfB (s, k), Msg.MsgOfB m -> return ESM.stateMap (B.update m) (s, k)
+      | StateOfB(s, k), Msg.MsgOfB m -> return ESM.stateMap (B.update m) (s, k)
 
-      | StateOfC (s, k), Msg.MsgOfC m -> return! ESM.stateMapEff (C.update m) (s, k)
+      | StateOfC(s, k), Msg.MsgOfC m -> return! ESM.stateMapEff (C.update m) (s, k)
 
       | _ -> return state
     }

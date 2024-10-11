@@ -18,10 +18,8 @@ type StateEnterEffect< ^s, 'o when ^s: (static member StateOut: ^s -> EffectType
 
 
 let inline handle
-  (
-    StateEnterEffect.StateEnterEffect (s: ^s),
-    k: 'o -> Eff<'os, ^h>
-  ) : Eff< ^state, ^h > when ^state: (static member StateEnter: ^s * ('o -> 'os) -> ^state) =
+  (StateEnterEffect.StateEnterEffect(s: ^s), k: 'o -> Eff<'os, ^h>)
+  : Eff< ^state, ^h > when ^state: (static member StateEnter: ^s * ('o -> 'os) -> ^state) =
   Eff.capture (fun h -> s |> callStateEnter (k >> Eff.handle h) |> Eff.pure')
 
 
@@ -31,11 +29,11 @@ type StateStatus<'s, 'o> =
   | Completed of output: 'o
 
   static member inline StateEnter
-    (
-      s: ^a,
-      k: 'b -> 'c
-    ) : StateStatus< ^state, _ > when ^a: (static member StateOut: ^a -> EffectTypeMarker<'b>) and ^state: (static member StateEnter:
-      ^a * ('b -> 'c) -> ^state) =
+    (s: ^a, k: 'b -> 'c)
+    : StateStatus< ^state, _ >
+        when ^a: (static member StateOut: ^a -> EffectTypeMarker<'b>)
+        and ^state: (static member StateEnter: ^a * ('b -> 'c) -> ^state)
+    =
     Pending(callStateEnter k s)
 
 

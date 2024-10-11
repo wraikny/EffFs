@@ -37,8 +37,7 @@ let dotnet cmd arg =
     res.Messages |> String.concat "\n" |> Trace.trace
     failwithf "failed 'dotnet %s %s'" cmd arg
 
-let fsiExec path =
-  dotnet "fsi" path
+let fsiExec path = dotnet "fsi" path
 
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 

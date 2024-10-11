@@ -62,10 +62,8 @@ type DynamicHandlerBuilder =
 
   [<CustomOperationAttribute("handle")>]
   member inline __.AddHandle
-    (
-      (vh, d: (Type * obj) list),
-      f: ^e -> 'a
-    ) : _ when 'e: (static member Effect: 'e -> EffectTypeMarker<'a>) =
+    ((vh, d: (Type * obj) list), f: ^e -> 'a)
+    : _ when 'e: (static member Effect: 'e -> EffectTypeMarker<'a>) =
     let h: obj -> 'a = unbox< ^e> >> f
     (vh, (typeof<'e>, box h) :: d)
 

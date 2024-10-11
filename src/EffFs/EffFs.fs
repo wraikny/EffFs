@@ -3,9 +3,7 @@
 open System.ComponentModel
 
 [<AbstractClass; Sealed>]
-type EffectTypeMarker<'a> =
-  class
-  end
+type EffectTypeMarker<'a> = class end
 
 [<Struct>]
 type Eff<'a, 'h> = Eff of ('h -> 'a)
